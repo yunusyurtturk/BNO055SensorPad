@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application>
+  <SelectedDataComponents>
+    <Source name="Euler 1" is_checked="False" />
+    <Source name="Euler 2" is_checked="False" />
+    <Source name="Euler 3" is_checked="False" />
+    <Source name="Acc 1" is_checked="False" />
+    <Source name="Acc 2" is_checked="False" />
+    <Source name="Acc 3" is_checked="False" />
+    <Source name="Gyro 1 (rads/s)" is_checked="false" />
+    <Source name="Gyro 2 (rads/s)" is_checked="false" />
+    <Source name="Gyro 3 (rads/s)" is_checked="false" />
+    <Source name="Mag 1" is_checked="false" />
+    <Source name="Mag 2" is_checked="false" />
+    <Source name="Mag 3" is_checked="false" />
+    <Source name="Orient 1" is_checked="false" />
+    <Source name="Orient 2" is_checked="false" />
+    <Source name="Orient 3" is_checked="false" />
+    <Source name="Quat w" is_checked="False" />
+    <Source name="Quat x" is_checked="False" />
+    <Source name="Quat y" is_checked="false" />
+    <Source name="Quat z" is_checked="false" />
+    <Source name="SysCal z" is_checked="false" />
+    <Source name="GyroCal z" is_checked="false" />
+    <Source name="AccCal z" is_checked="false" />
+    <Source name="MagCal z" is_checked="false" />
+    <Source name="ThetaTilt" is_checked="false" />
+    <Source name="Phi" is_checked="false" />
+    <Source name="Psi" is_checked="false" />
+    <Source name="MadgYaw" is_checked="false" />
+    <Source name="MadgPitch" is_checked="false" />
+    <Source name="MadgRoll" is_checked="false" />
+    <Source name="ACCQuat w" is_checked="false" />
+    <Source name="ACCQuat x" is_checked="false" />
+    <Source name="ACCQuat y" is_checked="false" />
+    <Source name="ACCQuat z" is_checked="false" />
+    <Source name="QuatWDiff" is_checked="false" />
+    <Source name="QuatXDiff" is_checked="false" />
+    <Source name="QuatYDiff" is_checked="false" />
+    <Source name="QuatZDiff" is_checked="false" />
+    <Source name="NedAccX" is_checked="False" />
+    <Source name="NedAccy" is_checked="False" />
+    <Source name="NedAccZ" is_checked="False" />
+    <Source name="RotatedNedAccX" is_checked="False" />
+    <Source name="RotatedNedAccy" is_checked="False" />
+    <Source name="RotatedNedAccZ" is_checked="False" />
+    <Source name="TimeDiffms" is_checked="False" />
+    <Source name="VelN" is_checked="False" />
+    <Source name="VelE" is_checked="False" />
+    <Source name="VelD" is_checked="False" />
+    <Source name="PosN" is_checked="True" />
+    <Source name="PosE" is_checked="True" />
+    <Source name="PosD" is_checked="True" />
+    <Source name="QDistance" is_checked="False" />
+  </SelectedDataComponents>
+  <Chart min="-10" max="18" />
+</Application>

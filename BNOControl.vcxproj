@@ -1,0 +1,262 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{78D51AB7-0F80-483F-8F70-E6691DF2706B}</ProjectGuid>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <Keyword>ManagedCProj</Keyword>
+    <RootNamespace>BNOControl</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CLRSupport>true</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CLRSupport>true</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CLRSupport>true</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CLRSupport>true</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <TargetName>$(ProjectName)Debug</TargetName>
+    <IncludePath>$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x86</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>$(ProjectName)</TargetName>
+    <IncludePath>$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x86</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalUsingDirectories>E:\Projeler\IMUPad\BNOControl\packages\lib\net40;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <AdditionalIncludeDirectories>C:\Users\yunus\Desktop\OyunKontrolcusu\IMU-algorithm-master\Quaternions;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies />
+      <SubSystem>Windows</SubSystem>
+      <EntryPointSymbol>Main</EntryPointSymbol>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies />
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalUsingDirectories>E:\Projeler\IMUPad\BNOControl\packages\lib\net40;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <AdditionalIncludeDirectories>C:\Users\yunus\Desktop\OyunKontrolcusu\IMU-algorithm-master\Quaternions;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies />
+      <EntryPointSymbol>Main</EntryPointSymbol>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies />
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Reference Include="MathNet.Numerics">
+      <HintPath>packages\lib\net40\MathNet.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK">
+      <HintPath>packages\OpenTK.3.1.0\lib\net20\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="System.Xml" />
+    <Reference Include="vJoyInterfaceWrap">
+      <HintPath>C:\Users\yunus\Desktop\OyunKontrolcusu\VJOYSDK\SDK\c#\x86\vJoyInterfaceWrap.dll</HintPath>
+    </Reference>
+    <Reference Include="vJoyWrapper">
+      <HintPath>C:\Users\yunus\Desktop\OyunKontrolcusu\VJOYSDK\vJOYNETWrapper\vJoyWrapper.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ActionSettings.cpp" />
+    <ClCompile Include="C:\Users\yunus\Desktop\OyunKontrolcusu\IMU-algorithm-master\Quaternions\quaternion.c">
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="C:\Users\yunus\Desktop\OyunKontrolcusu\IMU-algorithm-master\Quaternions\sensor_processing_lib.c">
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="C:\Users\yunus\Desktop\OyunKontrolcusu\IMU-algorithm-master\Quaternions\vector_3d.c">
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="MadgwickAHRS.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Mainform.cpp" />
+    <ClCompile Include="PatternLoader.cpp" />
+    <ClCompile Include="Plotter.cpp" />
+    <ClCompile Include="Plotter3d.cpp" />
+    <ClCompile Include="SerialPort\SerialControl.cpp" />
+    <ClCompile Include="TestMain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ActionArrayBuffer.h" />
+    <ClInclude Include="ActionBuffer.h" />
+    <ClInclude Include="ActionControlTrainerTypes.h" />
+    <ClInclude Include="ActionSettings.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
+    <ClInclude Include="AvgOp.h" />
+    <ClInclude Include="BNO055\BNO055.h" />
+    <ClInclude Include="BNO055\BNO055Registers.h" />
+    <ClInclude Include="C:\Users\yunus\Desktop\OyunKontrolcusu\IMU-algorithm-master\Quaternions\quaternion.h" />
+    <ClInclude Include="C:\Users\yunus\Desktop\OyunKontrolcusu\IMU-algorithm-master\Quaternions\sensor_processing_lib.h" />
+    <ClInclude Include="C:\Users\yunus\Desktop\OyunKontrolcusu\IMU-algorithm-master\Quaternions\vector_3d.h" />
+    <ClInclude Include="COpChain.h" />
+    <ClInclude Include="DataComponent.h" />
+    <ClInclude Include="DiffOp.h" />
+    <ClInclude Include="DTWDistance.h" />
+    <ClInclude Include="DTWDistanceCustom.h" />
+    <ClInclude Include="ISignalOp.h" />
+    <ClInclude Include="KalmanEstimator.h" />
+    <ClInclude Include="MadgwickAHRS.h" />
+    <ClInclude Include="Mainform.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
+    <ClInclude Include="MainformOps.h" />
+    <ClInclude Include="ActionDefinition.h" />
+    <ClInclude Include="Math3D.h" />
+    <ClInclude Include="MeanAndCenterOffMass.h" />
+    <ClInclude Include="MSE3D.h" />
+    <ClInclude Include="Normalizer.h" />
+    <ClInclude Include="OpenTK3D.h" />
+    <ClInclude Include="PatternLoader.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
+    <ClInclude Include="PatternMatcher.h" />
+    <ClInclude Include="Plotter.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
+    <ClInclude Include="Plotter3d.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
+    <ClInclude Include="PreprocessOps.h" />
+    <ClInclude Include="RelativeMovement.h" />
+    <ClInclude Include="SensorDataTypes.h" />
+    <ClInclude Include="SensorOps.h" />
+    <ClInclude Include="SensorValueOps.h" />
+    <ClInclude Include="SerialPort\SerialControl.h" />
+    <ClInclude Include="TestMain.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
+    <ClInclude Include="UISettingsSaver.h" />
+    <ClInclude Include="ViewTypes.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ActionSettings.resx">
+      <DependentUpon>ActionSettings.h</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Mainform.resx">
+      <DependentUpon>Mainform.h</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PatternLoader.resx">
+      <DependentUpon>PatternLoader.h</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plotter.resx">
+      <DependentUpon>Plotter.h</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plotter3d.resx">
+      <DependentUpon>Plotter3d.h</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TestMain.resx">
+      <DependentUpon>TestMain.h</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

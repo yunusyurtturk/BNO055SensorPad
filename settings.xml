@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application>
+  <SelectedDataComponents>
+    <Source name="Euler 1" is_checked="False" />
+    <Source name="Euler 2" is_checked="False" />
+    <Source name="Euler 3" is_checked="False" />
+    <Source name="Acc 1" is_checked="False" />
+    <Source name="Acc 2" is_checked="False" />
+    <Source name="Acc 3" is_checked="False" />
+    <Source name="Gyro 1 (rads/s)" is_checked="False" />
+    <Source name="Gyro 2 (rads/s)" is_checked="False" />
+    <Source name="Gyro 3 (rads/s)" is_checked="false" />
+    <Source name="Mag 1" is_checked="False" />
+    <Source name="Mag 2" is_checked="false" />
+    <Source name="Mag 3" is_checked="false" />
+    <Source name="Orient 1" is_checked="false" />
+    <Source name="Orient 2" is_checked="false" />
+    <Source name="Orient 3" is_checked="false" />
+    <Source name="Quat w" is_checked="False" />
+    <Source name="Quat x" is_checked="False" />
+    <Source name="Quat y" is_checked="False" />
+    <Source name="Quat z" is_checked="False" />
+    <Source name="SysCal z" is_checked="False" />
+    <Source name="GyroCal z" is_checked="false" />
+    <Source name="AccCal z" is_checked="false" />
+    <Source name="MagCal z" is_checked="false" />
+    <Source name="ThetaTilt" is_checked="False" />
+    <Source name="Phi" is_checked="False" />
+    <Source name="Psi" is_checked="False" />
+    <Source name="MadgYaw" is_checked="False" />
+    <Source name="MadgPitch" is_checked="False" />
+    <Source name="MadgRoll" is_checked="False" />
+    <Source name="ACCQuat w" is_checked="false" />
+    <Source name="ACCQuat x" is_checked="False" />
+    <Source name="ACCQuat y" is_checked="false" />
+    <Source name="ACCQuat z" is_checked="false" />
+    <Source name="QuatWDiff" is_checked="false" />
+    <Source name="QuatXDiff" is_checked="false" />
+    <Source name="QuatYDiff" is_checked="false" />
+    <Source name="QuatZDiff" is_checked="false" />
+    <Source name="NedAccX" is_checked="False" />
+    <Source name="NedAccy" is_checked="False" />
+    <Source name="NedAccZ" is_checked="False" />
+    <Source name="RotatedNedAccX" is_checked="False" />
+    <Source name="RotatedNedAccy" is_checked="False" />
+    <Source name="RotatedNedAccZ" is_checked="False" />
+    <Source name="TimeDiffms" is_checked="True" />
+    <Source name="VelN" is_checked="False" />
+    <Source name="VelE" is_checked="False" />
+    <Source name="VelD" is_checked="False" />
+    <Source name="PosN" is_checked="False" />
+    <Source name="PosE" is_checked="False" />
+    <Source name="PosD" is_checked="False" />
+    <Source name="QDistance" is_checked="False" />
+    <Source name="QRollOutW" is_checked="false" />
+    <Source name="QRollOutX" is_checked="false" />
+    <Source name="QRollOutY" is_checked="false" />
+    <Source name="QRollOutZ" is_checked="false" />
+    <Source name="RolOutYaw" is_checked="False" />
+    <Source name="RolOutPitch" is_checked="False" />
+    <Source name="RolOutRoll" is_checked="False" />
+    <Source name="Res1" is_checked="True" />
+    <Source name="Res2" is_checked="false" />
+    <Source name="Res3" is_checked="false" />
+    <Source name="Res4" is_checked="false" />
+    <Source name="DistanceOfACtion0" is_checked="False" />
+    <Source name="DistanceOfACtion1" is_checked="False" />
+    <Source name="DistanceOfACtion2" is_checked="False" />
+    <Source name="DistanceOfACtion3" is_checked="False" />
+    <Source name="DistanceOfACtion4" is_checked="False" />
+    <Source name="DistanceOfACtion5" is_checked="False" />
+    <Source name="DistanceOfACtion6" is_checked="false" />
+    <Source name="DistanceOfACtion7" is_checked="false" />
+    <Source name="SensorForwardAcc" is_checked="False" />
+    <Source name="SensorRightAcc" is_checked="False" />
+    <Source name="SensorDownAcc" is_checked="False" />
+    <Source name="RollCompansedQuatW" is_checked="false" />
+    <Source name="RollCompansedQuatX" is_checked="false" />
+    <Source name="RollCompansedQuatY" is_checked="false" />
+    <Source name="RollCompansedQuatZ" is_checked="False" />
+    <Source name="PosZDiff" is_checked="False" />
+    <Source name="PosZFiltered" is_checked="false" />
+    <Source name="AbsPosX" is_checked="False" />
+    <Source name="AbsPosY" is_checked="False" />
+    <Source name="AbsPosZ" is_checked="False" />
+    <Source name="AbsVelX" is_checked="False" />
+    <Source name="AbsVelY" is_checked="False" />
+    <Source name="AbsVelZ" is_checked="False" />
+    <Source name="Euler2Diff" is_checked="False" />
+    <Source name="Euler3Diff" is_checked="False" />
+    <Source name="DownAccDiff" is_checked="False" />
+    <Source name="DownAccDiffCrossing" is_checked="False" />
+    <Source name="BuffResetTimes" is_checked="True" />
+  </SelectedDataComponents>
+  <Chart min="9960" max="10200" />
+  <DirectionQuaternions>
+    <Quaternion id="4" w="0,4587402" x="0,03259277" y="-0,0006713867" z="0,8880005" />
+    <Quaternion id="3" w="0,1367798" x="-0,008422852" y="0,02166748" z="0,9903564" />
+    <Quaternion id="5" w="0,8583984" x="0,05834961" y="-0,01702881" z="0,5093994" />
+    <Quaternion id="2" w="0,7599487" x="0,2307129" y="-0,2136841" z="0,5688477" />
+    <Quaternion id="1" w="0,4144287" x="0,223999" y="-0,09448242" z="0,8770142" />
+    <Quaternion id="0" w="0,1937256" x="0,2092896" y="-0,105896" z="0,9525757" />
+    <Quaternion id="6" w="0,1984863" x="-0,2163086" y="0,1401978" z="0,9456177" />
+    <Quaternion id="7" w="0,4767456" x="-0,1134644" y="0,1254272" z="0,8626099" />
+    <Quaternion id="8" w="0,9078369" x="-0,08532715" y="0,3230591" z="0,2533569" />
+  </DirectionQuaternions>
+</Application>
