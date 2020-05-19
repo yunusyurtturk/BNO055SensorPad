@@ -19,13 +19,21 @@ namespace BNOControl {
 		UpdateEventDelegate ^UpdateEvent;
 	private:
 		double threshold;
-		unsigned int TargetAction;
+	private: System::Windows::Forms::Label^  label2;
+	private: System::Windows::Forms::Label^  lActionNo;
+	private: System::Windows::Forms::Label^  label3;
+	private: System::Windows::Forms::TextBox^  tbFileSaveThreshold;
+	private: System::Windows::Forms::CheckBox^  cbFileSaveEnabled;
+	private: System::Windows::Forms::Button^  bFileSaveApply;
+			 unsigned int TargetAction;
 	public:
 		ActionSettings(unsigned int target_action)
 		{
 			InitializeComponent();
 			
 			TargetAction = target_action;
+
+			lActionNo->Text = target_action.ToString();
 		}
 		property double Threshold{
 			double get() {
@@ -70,6 +78,12 @@ namespace BNOControl {
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->tbActionThreshold = (gcnew System::Windows::Forms::TextBox());
 			this->bActionThreshold = (gcnew System::Windows::Forms::Button());
+			this->label2 = (gcnew System::Windows::Forms::Label());
+			this->lActionNo = (gcnew System::Windows::Forms::Label());
+			this->label3 = (gcnew System::Windows::Forms::Label());
+			this->tbFileSaveThreshold = (gcnew System::Windows::Forms::TextBox());
+			this->cbFileSaveEnabled = (gcnew System::Windows::Forms::CheckBox());
+			this->bFileSaveApply = (gcnew System::Windows::Forms::Button());
 			this->SuspendLayout();
 			// 
 			// label1
@@ -98,11 +112,71 @@ namespace BNOControl {
 			this->bActionThreshold->UseVisualStyleBackColor = true;
 			this->bActionThreshold->Click += gcnew System::EventHandler(this, &ActionSettings::bActionThreshold_Click);
 			// 
+			// label2
+			// 
+			this->label2->AutoSize = true;
+			this->label2->Location = System::Drawing::Point(41, 13);
+			this->label2->Name = L"label2";
+			this->label2->Size = System::Drawing::Size(40, 13);
+			this->label2->TabIndex = 3;
+			this->label2->Text = L"Action:";
+			// 
+			// lActionNo
+			// 
+			this->lActionNo->AutoSize = true;
+			this->lActionNo->Location = System::Drawing::Point(87, 13);
+			this->lActionNo->Name = L"lActionNo";
+			this->lActionNo->Size = System::Drawing::Size(10, 13);
+			this->lActionNo->TabIndex = 4;
+			this->lActionNo->Text = L"-";
+			// 
+			// label3
+			// 
+			this->label3->AutoSize = true;
+			this->label3->Location = System::Drawing::Point(191, 48);
+			this->label3->Name = L"label3";
+			this->label3->Size = System::Drawing::Size(101, 13);
+			this->label3->TabIndex = 5;
+			this->label3->Text = L"File Save Threshold";
+			// 
+			// tbFileSaveThreshold
+			// 
+			this->tbFileSaveThreshold->Location = System::Drawing::Point(298, 45);
+			this->tbFileSaveThreshold->Name = L"tbFileSaveThreshold";
+			this->tbFileSaveThreshold->Size = System::Drawing::Size(100, 20);
+			this->tbFileSaveThreshold->TabIndex = 6;
+			// 
+			// cbFileSaveEnabled
+			// 
+			this->cbFileSaveEnabled->AutoSize = true;
+			this->cbFileSaveEnabled->Location = System::Drawing::Point(206, 71);
+			this->cbFileSaveEnabled->Name = L"cbFileSaveEnabled";
+			this->cbFileSaveEnabled->RightToLeft = System::Windows::Forms::RightToLeft::Yes;
+			this->cbFileSaveEnabled->Size = System::Drawing::Size(106, 17);
+			this->cbFileSaveEnabled->TabIndex = 7;
+			this->cbFileSaveEnabled->Text = L"File Save Enable";
+			this->cbFileSaveEnabled->UseVisualStyleBackColor = true;
+			// 
+			// bFileSaveApply
+			// 
+			this->bFileSaveApply->Location = System::Drawing::Point(323, 91);
+			this->bFileSaveApply->Name = L"bFileSaveApply";
+			this->bFileSaveApply->Size = System::Drawing::Size(75, 23);
+			this->bFileSaveApply->TabIndex = 8;
+			this->bFileSaveApply->Text = L"Apply";
+			this->bFileSaveApply->UseVisualStyleBackColor = true;
+			// 
 			// ActionSettings
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(160, 148);
+			this->ClientSize = System::Drawing::Size(441, 201);
+			this->Controls->Add(this->bFileSaveApply);
+			this->Controls->Add(this->cbFileSaveEnabled);
+			this->Controls->Add(this->tbFileSaveThreshold);
+			this->Controls->Add(this->label3);
+			this->Controls->Add(this->lActionNo);
+			this->Controls->Add(this->label2);
 			this->Controls->Add(this->bActionThreshold);
 			this->Controls->Add(this->tbActionThreshold);
 			this->Controls->Add(this->label1);

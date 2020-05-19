@@ -2,6 +2,10 @@
 
 #include "ISignalOp.h"
 
+extern bool FileSave;
+extern unsigned int SaveDirIndex;
+
+
 using namespace System;
 
 namespace SignalProcessing
@@ -10,10 +14,15 @@ namespace SignalProcessing
 	private:
 		unsigned int Order;
 		String ^name;
+		double threshold;
+
+
 	public:
 		MSE3D() {
 
 			this->Name = "MSE3D";
+
+
 		}
 		property String ^Name {
 			String ^get() {
@@ -22,6 +31,35 @@ namespace SignalProcessing
 			void set(String ^val) {
 				name = val;
 			}
+		}
+
+		property double Threshold {
+			double get() {
+				return threshold;
+			}
+			void set(double val) {
+				threshold = val;
+			}
+		}
+
+		virtual void SetName(String ^p_name)
+		{
+			this->Name = p_name;
+		}
+		virtual String ^GetName()
+		{
+			return this->Name;
+		}
+
+		virtual array<array<float>^> ^ PreprocessActionTemplate(array<array<float> ^> ^p_saved_action_definition, array<int> ^p_sdi)
+		{
+			return p_saved_action_definition;
+		}
+
+		virtual virtual void SetFileSaveEnabled(boolean val, double threshold)
+		{
+			Threshold = threshold;
+			FileSave = true;
 		}
 
 		virtual array<ViewSerialEvent> ^Apply(array<ViewSerialEvent> ^p_action)
@@ -60,7 +98,73 @@ namespace SignalProcessing
 
 				mse[sdi] = sum_of_squares;
 				
-				distances[sdi] = Math::Sqrt(mse[sdi] / action_original_length);
+			//	distances[sdi] = Math::Sqrt(mse[sdi] / action_original_length);
+
+				distances[sdi] = Math::Sqrt(mse[sdi]);
+
+			
+			}
+
+			if (distances[0] < threshold) {
+				FileSave = true;
+			}
+
+
+			if (FileSave) {
+
+				String ^dir = gcnew String(Environment::CurrentDirectory + "\\SensorData\\Signals\\"+ SaveDirIndex.ToString() + this->Name);
+				if (!IO::Directory::Exists(dir)) {
+
+					IO::Directory::CreateDirectory(dir);
+				}
+				/****************************/
+
+				String ^path = gcnew String(dir + "\\saved_action.txt");
+
+				System::IO::TextWriter ^pTextWriter;
+				if (!IO::File::Exists(path)) {
+
+					pTextWriter = gcnew System::IO::StreamWriter(path, true);
+					pTextWriter->Flush();
+
+				}
+				for (int j = 0; j < saved_action_length; j++) {
+					pTextWriter->Write(p_saved_action_definition[saved_action_length - j - 1][sensor_data_index_of_saved] + "\t");
+				}
+				pTextWriter->Flush();
+				pTextWriter->Close();
+
+				/****************************/
+				path = gcnew String(dir + "\\last_action.txt");
+
+
+				if (!IO::File::Exists(path)) {
+
+					pTextWriter = gcnew System::IO::StreamWriter(path, true);
+					pTextWriter->Flush();
+
+				}
+				for (int j = 0; j < saved_action_length; j++) {
+					pTextWriter->Write(p_last_actions[last_action_length - j - 1][sensor_data_index_of_last] + "\t");
+				}
+				pTextWriter->Flush();
+				pTextWriter->Close();
+	
+
+				/************DISTANCE****************/
+				path = gcnew String(dir + "\\euclidian_distance.txt");
+
+
+				if (!IO::File::Exists(path)) {
+
+					pTextWriter = gcnew System::IO::StreamWriter(path, true);
+					pTextWriter->Flush();
+
+				}
+				pTextWriter->Write(distances[0] + "\t");
+				
+				pTextWriter->Flush();
+				pTextWriter->Close();
 
 			}
 			

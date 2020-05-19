@@ -179,6 +179,21 @@
     <ClInclude Include="Normalizer.h">
       <Filter>SignalProcessing</Filter>
     </ClInclude>
+    <ClInclude Include="StandartDeviation.h">
+      <Filter>Operations</Filter>
+    </ClInclude>
+    <ClInclude Include="ZNormalize.h">
+      <Filter>Operations</Filter>
+    </ClInclude>
+    <ClInclude Include="SymbolicDiff.h">
+      <Filter>SignalProcessing</Filter>
+    </ClInclude>
+    <ClInclude Include="SymbolicDiffDTW.h">
+      <Filter>SignalProcessing</Filter>
+    </ClInclude>
+    <ClInclude Include="DTW.h">
+      <Filter>SignalProcessing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Mainform.resx">

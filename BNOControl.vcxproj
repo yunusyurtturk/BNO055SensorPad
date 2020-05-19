@@ -196,6 +196,7 @@
     <ClInclude Include="COpChain.h" />
     <ClInclude Include="DataComponent.h" />
     <ClInclude Include="DiffOp.h" />
+    <ClInclude Include="DTW.h" />
     <ClInclude Include="DTWDistance.h" />
     <ClInclude Include="DTWDistanceCustom.h" />
     <ClInclude Include="ISignalOp.h" />
@@ -227,11 +228,15 @@
     <ClInclude Include="SensorOps.h" />
     <ClInclude Include="SensorValueOps.h" />
     <ClInclude Include="SerialPort\SerialControl.h" />
+    <ClInclude Include="StandartDeviation.h" />
+    <ClInclude Include="SymbolicDiff.h" />
+    <ClInclude Include="SymbolicDiffDTW.h" />
     <ClInclude Include="TestMain.h">
       <FileType>CppForm</FileType>
     </ClInclude>
     <ClInclude Include="UISettingsSaver.h" />
     <ClInclude Include="ViewTypes.h" />
+    <ClInclude Include="ZNormalize.h" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ActionSettings.resx">

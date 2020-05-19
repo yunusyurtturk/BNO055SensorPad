@@ -2,7 +2,8 @@
 
 #include "ISignalOp.h"
 
-static bool FileSave = false;
+extern bool FileSave;
+extern unsigned int SaveDirIndex;
 
 namespace SignalProcessing
 {
@@ -10,6 +11,7 @@ namespace SignalProcessing
 	private:
 		unsigned int Neighborhood;
 		String ^name;
+		double threshold;
 	private:
 		static double Distance(float p_1, float p_2) {
 			return Math::Abs(p_1 - p_2);
@@ -30,7 +32,35 @@ namespace SignalProcessing
 			}
 		}
 
+		property double Threshold {
+			double get() {
+				return threshold;
+			}
+			void set(double val) {
+				threshold = val;
+			}
+		}
 
+
+		virtual void SetName(String ^p_name)
+		{
+			this->Name = p_name;
+		}
+		virtual String ^GetName()
+		{
+			return this->Name;
+		}
+
+		virtual array<array<float>^> ^ PreprocessActionTemplate(array<array<float> ^> ^p_saved_action_definition, array<int> ^p_sdi)
+		{
+			return p_saved_action_definition;
+		}
+
+		virtual virtual void SetFileSaveEnabled(boolean val, double threshold)
+		{
+			Threshold = threshold;
+			FileSave = true;
+		}
 
 		virtual array<ViewSerialEvent> ^Apply(array<ViewSerialEvent> ^p_action)
 		{
@@ -79,7 +109,7 @@ namespace SignalProcessing
 				sensor_data_index_of_last = p_data_offsets[sdi];
 				sensor_data_index_of_saved = sdi;
 
-				sensor_data_index_of_last = sdi;
+				//sensor_data_index_of_last = sdi;
 
 				CMatrix[0, 0] = Distance(p_saved_action_definition[0][sensor_data_index_of_saved], p_last_actions[0][sensor_data_index_of_last]);
 
@@ -145,6 +175,8 @@ namespace SignalProcessing
 
 				int distance_counter = 0;
 				int temp_i_decrement, temp_j_decrement;
+				int dtw_range = saved_action_length + saved_action_length * 0.30f;
+				double dtw_distance = 0;
 
 				while (i >= 0 && j >= 0) {
 
@@ -152,13 +184,19 @@ namespace SignalProcessing
 					pDistancePath[distance_counter] = p_kvp;
 					distance_counter++;
 
+					if (distance_counter > dtw_range) {
+
+						//distance = 9999999;
+						//break;
+					}
+
 					action_original_length[sdi] = action_original_length[sdi] + Math::Pow(p_saved_action_definition[j][sensor_data_index_of_saved], 2);
 
 					temp_i_decrement = 1;
 					temp_j_decrement = 1;
 
 					//distance = distance + CMatrix[j, i];
-					distance = distance + Math::Pow((p_saved_action_definition[j][sensor_data_index_of_saved] - p_last_actions[i][sensor_data_index_of_last]), 2);
+					dtw_distance = dtw_distance + Math::Pow((p_saved_action_definition[j][sensor_data_index_of_saved] - p_last_actions[i][sensor_data_index_of_last]), 2);
 
 					if (i != 0 && j != 0) {
 
@@ -202,17 +240,13 @@ namespace SignalProcessing
 
 				}
 
-				distance = distance * (distance_counter / (float)saved_action_length);
+				distance = distance +  dtw_distance * ((sdi + 1) / (float)p_data_offsets->Length);
 
-
+	
 
 				if (FileSave) {
-					static int file = 0;
-					FileSave = false;
-					file++;
-
-
-					String ^dir = gcnew String(Environment::CurrentDirectory + "\\SensorData\\Signals\\" + file.ToString());
+					
+					String ^dir = gcnew String(Environment::CurrentDirectory + "\\SensorData\\Signals\\" + SaveDirIndex.ToString() + this->Name);
 					if (!IO::Directory::Exists(dir)) {
 
 						IO::Directory::CreateDirectory(dir);
@@ -330,7 +364,7 @@ namespace SignalProcessing
 					pTextWriter->Close();
 				}
 
-				distances[sdi] = Math::Sqrt(distance / action_original_length[sdi]);
+				distances[sdi] = Math::Sqrt(distance);
 				distance = 0;
 			}
 			return distances;

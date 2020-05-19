@@ -6,6 +6,8 @@
 #include "MeanAndCenterOffMass.h"
 #include "ISignalOp.h"
 #include "Normalizer.h"
+#include "StandartDeviation.h"
+#include "ZNormalize.h"
 
 public ref class PatternDataValidity
 {
@@ -16,8 +18,10 @@ public ref class ActionDefinition
 {
 private:
 	String ^PatternName;
+	array<array<float>^> ^pPattern;
 	array<array<float>^> ^pOriginalPattern;
 	array<array<float>^> ^pNormalizedPattern;
+	array<array<float>^> ^pZNormalizedPatterns;
 	double Threshold;
 	SignalProcessing::Operation ^pDistanceOp;
 
@@ -26,10 +30,13 @@ private:
 	array<int> ^SensorDataIndexs;
 	array<double> ^CenterOffMasses;
 	array<double> ^Means;
+	array<double> ^StandartDeviations;
 	unsigned int SensorDataCount;
 	unsigned int PatternLength;
 
 	unsigned int lastConsequtiveMatches;
+
+	unsigned int ActionNo;
 public:
 	ActionDefinition()
 	{
@@ -42,24 +49,61 @@ public:
 		PatternLength = 0;
 		SensorDataCount = 0;
 		LastConsequtiveMatches = 0;
+		ActionNo = -1;
 	}
 
-		property unsigned int LastConsequtiveMatches {
-		unsigned int get() {
-			return lastConsequtiveMatches;
-		}
-		void set(unsigned int val) {
-			lastConsequtiveMatches = val;
-		}
+	property unsigned int LastConsequtiveMatches {
+	unsigned int get() {
+		return lastConsequtiveMatches;
+	}
+	void set(unsigned int val) {
+		lastConsequtiveMatches = val;
+	}
 	}
 	void Init()
 	{
 		if (SensorDataCount > 0) {
 			CenterOffMasses = gcnew array<double>(SensorDataCount);
 			Means = gcnew array<double>(SensorDataCount);
+			StandartDeviations = gcnew array<double>(SensorDataCount);
+
 		}
 
+		SetPattern(
+			GetDistanceMethod()->PreprocessActionTemplate(GetOriginalPattern(), GetSensorDataIndexs())
+		);
+
 		InitMeansAndCenterOfMasses();
+
+		//ZNormalizePatterns();
+
+		InitMeansAndCenterOfMasses();
+
+	}
+
+	int GetActionNo()
+	{
+		return ActionNo;
+	}
+	void SetActionNo(int val)
+	{
+		this->ActionNo = val;
+	}
+	void ZNormalizePatterns()
+	{
+		array<array<float> ^> ^pZNormalizedPatterns = gcnew array<array<float> ^>(GetOriginalPattern()->Length);
+
+		for (int i = 0; i < GetOriginalPattern()->Length; i++) {
+			pZNormalizedPatterns[i] = gcnew array<float>(SensorDataIndexs->Length);
+		}
+
+		array<int> ^sdi = gcnew array<int>(SensorDataIndexs->Length);
+
+		for (int i = 0; i < SensorDataIndexs->Length; i++) {
+			sdi[i] = i;
+		}
+		ZNormalize::Normalize(GetOriginalPattern(), GetOriginalPattern(), sdi, sdi, Means, StandartDeviations);
+
 	}
 	void SetSensorDataIndexs(array<int> ^p_indexs)
 	{
@@ -81,10 +125,20 @@ public:
 	void SetDistanceMethod(SignalProcessing::Operation ^p_distance_method)
 	{
 		pDistanceOp = p_distance_method;
+
+		pDistanceOp->SetName(pDistanceOp->GetName() + "_" + GetActionNo());
+
+
+
 	}
 	void SetPattern(array<array<float> ^> ^p_pattern)
 	{
+		this->pPattern = p_pattern;
+	}
+	void SetOriginalPattern(array<array<float> ^> ^p_pattern)
+	{
 		this->pOriginalPattern = p_pattern;
+		this->pPattern = p_pattern;
 		PatternLength = p_pattern->Length;
 
 		array<int> ^p_sdi = gcnew array<int>(SensorDataIndexs->Length);
@@ -95,6 +149,7 @@ public:
 		}
 
 		pNormalizedPattern = SignalProcessing::Normalizer::Normalize(p_pattern, p_sdi);
+
 	}
 	
 	double GetThreshold()
@@ -116,12 +171,14 @@ public:
 		OpChainCounter++;
 	}
 
-
-
-	
 	array<array<float> ^> ^GetPattern()
 	{
-		return pNormalizedPattern;
+		return pPattern;
+	}
+
+	array<array<float> ^> ^GetOriginalPattern()
+	{
+		return pOriginalPattern;
 	}
 	
 	void ShowCorrelation()
@@ -134,45 +191,25 @@ public:
 	double GetCenterOffMass(int sdi) {
 		return CenterOffMasses[sdi];
 	}
+	double GetStandartDeviation(int sdi) {
+		return StandartDeviations[sdi];
+	}
 private:
 	
 	void InitMeansAndCenterOfMasses()
 	{
 		double mean;
-		array<array<float> ^>^p_pattern = GetPattern();
+		array<array<float> ^>^p_pattern = GetOriginalPattern();
 		unsigned int data_index = 0;
-		unsigned int pattern_length = GetPattern()->Length;
+		unsigned int pattern_length = GetOriginalPattern()->Length;
 
 		for (int i = 0; i < SensorDataCount; i++) {
 
 			
 
 			MeanAndCenterOffMass::Calculate(p_pattern, i, i, Means, CenterOffMasses);
-#if 0
-			for (int sample = 0; (sample < pattern_length && sample < pattern_length/2); sample++) {
+			StandartDeviation::Calculate(p_pattern, i, i, Means, StandartDeviations);
 
-				mean = mean + p_pattern[sample][i];
-				mean = mean + p_pattern[sample - sample - 1][i];
-
-				cumulative_weighted_mass = cumulative_weighted_mass + (sample - pattern_length / 2) * p_pattern[sample][i];
-				cumulative_weighted_mass = cumulative_weighted_mass + (pattern_length/2 - sample) * p_pattern[pattern_length - sample - 1][i];
-
-				cumulative_mass = cumulative_mass + p_pattern[sample][i];
-				cumulative_mass = cumulative_mass + p_pattern[sample - sample - 1][i];
-			}
-
-			for (int sample = 0; sample < pattern_length; sample++) {
-
-				mean = mean + p_pattern[sample][i];
-				cumulative_weighted_mass = cumulative_weighted_mass + sample * p_pattern[sample][i];
-				cumulative_mass = cumulative_mass + p_pattern[sample][i];
-			}
-
-			CenterOffMasses[i] = (cumulative_weighted_mass / cumulative_mass);
-
-			mean = mean / pattern_length;
-			Means[i] = mean;
-#endif
 		}
 	}
 	void AddSample(array<float> ^p_event, array<double>  ^correlations)

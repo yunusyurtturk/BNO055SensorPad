@@ -30,7 +30,10 @@
 #define ACTION_BUFFER_ARRAY_LENGTH			100
 #define		DEGREE_TO_RADIAN_CONSTANT		(0.0174532925)
 #define	SENSOR_ACC_DATA_AVG_SIZE	8
-extern bool FileSave;
+
+
+bool FileSave = false;
+unsigned int SaveDirIndex = 0;
 
 namespace BNOControl {
 
@@ -377,6 +380,7 @@ private: System::Windows::Forms::Label^  label29;
 			pUDPClient = gcnew UdpClient();
 			
 		}
+		/*
 		virtual void AddPattern(int action, array<int> ^sensor_type_data_index)
 		{
 			ActionDefinition ^pActionDefinition = nullptr;
@@ -397,7 +401,7 @@ private: System::Windows::Forms::Label^  label29;
 				pActionDefinition = pActions[action];
 			}
 
-		}
+		}*/
 		virtual void AddPattern(int action, array<array<float> ^> ^pattern, array<int> ^sensor_data_offsets, double threshold, SignalProcessing::Operation ^p_distance_method) override
 		{
 			ActionDefinition ^pActionDefinition = nullptr;
@@ -406,9 +410,11 @@ private: System::Windows::Forms::Label^  label29;
 				pActionDefinition = gcnew ActionDefinition();
 				pActions->Add(action, pActionDefinition);
 				pActionDefinition->SetSensorDataIndexs(sensor_data_offsets);
-				pActionDefinition->SetPattern(pattern);
+				pActionDefinition->SetOriginalPattern(pattern);
 				pActionDefinition->SetThreshold(threshold);
+				pActionDefinition->SetActionNo(action);
 				pActionDefinition->SetDistanceMethod(p_distance_method);
+				
 
 				pActionDefinition->Init();
 			}
@@ -571,7 +577,7 @@ private: System::Windows::Forms::Label^  label29;
 			clbDataComponents->Items->Add(gcnew DataComponent("RollCompansedQuatZ", SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_ROLL_COMPANSED_QUATERNION_Z), false);	// Sensor'e gore Y ekseninde/yana dogru roll etkisinden kurtulmus ivme
 
 
-			clbDataComponents->Items->Add(gcnew DataComponent("SensorForwardAcc", SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_PITCH_COMPANSED_FORWARD_ACC), false);	// Sensor'e gore Z ekseninde/asagi dogru Pitch ve Roll etkisinden kurtulmus ivme
+			clbDataComponents->Items->Add(gcnew DataComponent("FreeSlot", SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_FREE_SLOT), false);	// Sensor'e gore Z ekseninde/asagi dogru Pitch ve Roll etkisinden kurtulmus ivme
 			clbDataComponents->Items->Add(gcnew DataComponent("SensorRightAcc", SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_ROLL_COMPANSED_RIGHT_ACC), false);	// Sensor'e gore X ekseninde/ileri dogru pitch etkisinden kurtulmus  ivme
 			clbDataComponents->Items->Add(gcnew DataComponent("SensorDownAcc", SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_ROLL_AND_PITCH_COMPANSED_DOWN_ACC), false);	// Sensor'e gore Y ekseninde/yana dogru roll etkisinden kurtulmus ivme
 
@@ -580,9 +586,9 @@ private: System::Windows::Forms::Label^  label29;
 			clbDataComponents->Items->Add(gcnew DataComponent("QDistance", SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_QUATERNION_DISTANCE_TO_REFERANCE), false);		// Mevcut Quat'in referans quat'a uzakligi
 
 
-			clbDataComponents->Items->Add(gcnew DataComponent("Psi",		SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_CALCULATED_PSI), false);
-			clbDataComponents->Items->Add(gcnew DataComponent("ThetaTilt",	SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_CALCULATED_TILT), false);
-			clbDataComponents->Items->Add(gcnew DataComponent("Phi",		SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_CALCULATED_PHI), false);
+			clbDataComponents->Items->Add(gcnew DataComponent("AccXFiltered",		SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_FILTERED_ACC_NED_X), false);
+			clbDataComponents->Items->Add(gcnew DataComponent("AccYFiltered",		SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_FILTERED_ACC_NED_Y), false);
+			clbDataComponents->Items->Add(gcnew DataComponent("AccZFiltered",		SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_FILTERED_ACC_NED_Z), false);
 			
 
 			clbDataComponents->Items->Add(gcnew DataComponent("MadgYaw",   SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_CALCULATED_MADGWICK_YAW), false);
@@ -606,6 +612,7 @@ private: System::Windows::Forms::Label^  label29;
 			clbDataComponents->Items->Add(gcnew DataComponent("DownAccDiff", SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_TEMP_ACC_DOWN_DIFF), false);
 
 			clbDataComponents->Items->Add(gcnew DataComponent("DownAccDiffCrossing", SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_TEMP_ACC_DOWN_DIFF_CROSSING), false);
+			clbDataComponents->Items->Add(gcnew DataComponent("AccFilteredDownSTD", SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_FILTERED_NED_ACC_DOWN_STD), false);
 
 
 			
@@ -626,7 +633,7 @@ private: System::Windows::Forms::Label^  label29;
 			acc_offset[1] = 0;
 			acc_offset[2] = 0;
 
-			pKalmanEstimators = gcnew array<SignalProcessing::KalmanEstimator ^>(SENSOR_DATA_TYPE_COUNT);
+			pKalmanEstimators = gcnew array<SignalProcessing::KalmanEstimator ^>(SENSOR_DATA_TYPE_COUNT + CUSTOM_SENSOR_DATA_TYPE_COUNT);
 			for (int i = 0; i < pKalmanEstimators->Length; i++) {
 				pKalmanEstimators[i] = gcnew SignalProcessing::KalmanEstimator();
 			}
@@ -636,6 +643,10 @@ private: System::Windows::Forms::Label^  label29;
 			
 
 			pKalmanEstimators[4]->SetParams(0.5, 0.5, 0.5);
+
+			pKalmanEstimators[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_FILTERED_ACC_NED_X]->SetParams(0.5, 0.5, 0.5);
+			pKalmanEstimators[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_FILTERED_ACC_NED_Y]->SetParams(0.5, 0.5, 0.5);
+			pKalmanEstimators[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_FILTERED_ACC_NED_Z]->SetParams(0.5, 0.5, 0.5);
 
 
 
@@ -2882,6 +2893,40 @@ protected:
 		return q;
 	}
 
+	void  CalculateMeanAndStd(float timestamp, ActionArrayBuffer ^action_array, array<float> ^sendor_data_array)
+	{
+		array<double> ^means = gcnew array<double>(1);
+		array<double> ^center_of_masses = gcnew array<double>(1);
+		array<double> ^std_devs = gcnew array<double>(1);
+
+
+		array<array<float> ^> ^p_array = action_array->GetBuffer();
+
+		array<array<float> ^> ^p_sub_array = gcnew array<array<float> ^>(20);
+
+		if (p_array->Length > 40) {
+
+			for (int i = 0; i < 19 && i < p_array->Length; i++) {
+				p_sub_array[i] = gcnew array<float>(1);
+
+				p_sub_array[i][0] = p_array[p_array->Length - 19 + i][SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_FILTERED_ACC_NED_Z];
+
+			}
+
+			p_sub_array[19] = gcnew array<float>(1);
+			p_sub_array[19][0] = sendor_data_array[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_FILTERED_ACC_NED_Z];
+
+
+
+			MeanAndCenterOffMass::Calculate(p_sub_array, 0, 0, means, center_of_masses);
+			StandartDeviation::Calculate(p_sub_array, 0, 0, means, std_devs);
+
+			sendor_data_array[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_FILTERED_NED_ACC_DOWN_STD] = std_devs[0];
+		}
+
+
+	}
+
 	void UpdateRelativeVelocityAndPosition(float timestamp, ActionArrayBuffer ^action_array, array<float> ^sendor_data_array)
 	{
 		float velocity_3d[3] = { 0, 0, 0 };
@@ -3002,10 +3047,6 @@ protected:
 		acc[1] = event.pEvent->acc[1] - acc_offset[1];
 		acc[2] = event.pEvent->acc[2] - acc_offset[2];
 
-
-
-		
-
 		BodyToNedAcc(event.pEvent->quat, acc, ned_acc);
 
 		tbAccN->Text = Convert::ToString(ned_acc[0]);
@@ -3016,6 +3057,13 @@ protected:
 		sendor_data_array[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_RELATIVE_ACCELERATION_NED_X] = ned_acc[0];
 		sendor_data_array[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_RELATIVE_ACCELERATION_NED_Y] = ned_acc[1];
 		sendor_data_array[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_RELATIVE_ACCELERATION_NED_Z] = ned_acc[2];
+
+
+		sendor_data_array[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_FILTERED_ACC_NED_X] = pKalmanEstimators[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_FILTERED_ACC_NED_X]->updateEstimate(ned_acc[0]);
+		sendor_data_array[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_FILTERED_ACC_NED_Y] = pKalmanEstimators[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_FILTERED_ACC_NED_Y]->updateEstimate(ned_acc[1]);
+		sendor_data_array[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_FILTERED_ACC_NED_Z] = pKalmanEstimators[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_FILTERED_ACC_NED_Z]->updateEstimate(ned_acc[2]);
+
+
 
 
 
@@ -3090,7 +3138,12 @@ protected:
 		sendor_data_array[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_CALIBRATION_STATUS_GYRO]	= event.pEvent->calibration.gyro;
 		sendor_data_array[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_CALIBRATION_STATUS_ACC]		= event.pEvent->calibration.acc;
 		sendor_data_array[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_CALIBRATION_STATUS_MAG]		= event.pEvent->calibration.mag;
-
+#if 0
+		/* OKUBENI
+		BURADA RPY'ni el ile ve Madgwick ile hesaplamalari var. 
+		Su an icin ihtiyac olmadigindan dolayi kod kapatildi
+		
+		*/
 		/* Theta, Phi and Psi */
 		static float thetaTilt = 0;
 		static float phi = 0;
@@ -3135,31 +3188,8 @@ protected:
 		sendor_data_array[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_CALCULATED_MADGWICK_PITCH]	= -thetaTilt;
 		sendor_data_array[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_CALCULATED_MADGWICK_ROLL]	= -phi;
 
-		//Quaternion  quat = quaternion_from_accelerometer(event.pEvent->acc[0]/9.8, event.pEvent->acc[1] / 9.8, event.pEvent->acc[2] / 9.8);
-		
-
-		//Quaternion quat = ToQuaternion(134.728, 0.626, 2.097);
 		float madg_quat[4];
 		pMadgwick->getQuat(madg_quat);
-#if 0
-		Quaternion quat = ToQuaternion(event.pEvent->euler[0] , event.pEvent->euler[1], event.pEvent->euler[2]);
-		sendor_data_array[SENSOR_DATA_TYPE_COUNT + 10] = madg_quat[0];
-		sendor_data_array[SENSOR_DATA_TYPE_COUNT + 11] = madg_quat[1];
-		sendor_data_array[SENSOR_DATA_TYPE_COUNT + 12] = madg_quat[2];
-		sendor_data_array[SENSOR_DATA_TYPE_COUNT + 13] = madg_quat[3];
-#endif
-#if 0
-		static float q1p = 0, q2p = 0, q3p = 0, q4p = 0;
-
-		sendor_data_array[SENSOR_DATA_TYPE_COUNT + 14] = (event.pEvent->quat[0] - q1p) * 10;
-		sendor_data_array[SENSOR_DATA_TYPE_COUNT + 15] = (event.pEvent->quat[1] - q2p) * 10;
-		sendor_data_array[SENSOR_DATA_TYPE_COUNT + 16] = (event.pEvent->quat[2] - q3p) * 10;
-		sendor_data_array[SENSOR_DATA_TYPE_COUNT + 17] = (event.pEvent->quat[3] - q4p) * 10;
-
-		q1p = event.pEvent->quat[0];
-		q2p = event.pEvent->quat[1];
-		q3p = event.pEvent->quat[2];
-		q4p = event.pEvent->quat[3];
 #endif
 
 	}
@@ -3333,7 +3363,7 @@ protected:
 
 				CalculateSensorRelativeAcc(p_event.pEvent->timestamp, p_event, sendor_data_array);
 
-				UpdateJoystick();
+				
 
 					
 
@@ -3352,8 +3382,10 @@ protected:
 
 				AddZeroCrossings(sendor_data_array);
 
+				CalculateMeanAndStd(p_event.pEvent->timestamp, pActionArrayBuffer, sendor_data_array);
 
 
+				UpdateJoystick();
 
 				pActionArrayBuffer->Push(sendor_data_array);
 
@@ -3533,37 +3565,6 @@ protected:
 
 							pJoyButtonList[kvp->Key]->BackColor = System::Drawing::Color::Green;
 							pJoyButtons[kvp->Key] = true;
-
-#if 0
-							List<array<float> ^> ^p_action_array;
-							p_action_array = pActionArrayBuffer->GetQueue();
-							unsigned int p_action_array_length = p_action_array->Count;
-							
-							for (int i = 0; i < kvp->Value->GetPattern()->Length; i++) {
-								array<float> ^a = p_action_array[p_action_array_length - 1 - i];
-								a[3] = 0;
-								a[4] = 0;
-								a[5] = 0;
-								a[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_RELATIVE_ACCELERATION_NED_X] = 0;
-								a[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_RELATIVE_ACCELERATION_NED_Y] = 0;
-								a[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_RELATIVE_ACCELERATION_NED_Z] = 0;
-
-								sensorFlowChart->Series[3]->Points[sensorFlowChart->Series[3]->Points->Count - 1 - i]->SetValueY(0);
-								sensorFlowChart->Series[4]->Points[sensorFlowChart->Series[4]->Points->Count - 1 - i]->SetValueY(0);
-								sensorFlowChart->Series[5]->Points[sensorFlowChart->Series[5]->Points->Count - 1 - i]->SetValueY(0);
-
-								sensorFlowChart->Series[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_RELATIVE_ACCELERATION_NED_X]->Points[sensorFlowChart->Series[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_RELATIVE_ACCELERATION_NED_X]->Points->Count - 1 - i]->SetValueY(0);
-								sensorFlowChart->Series[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_RELATIVE_ACCELERATION_NED_Y]->Points[sensorFlowChart->Series[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_RELATIVE_ACCELERATION_NED_Y]->Points->Count - 1 - i]->SetValueY(0);
-								sensorFlowChart->Series[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_RELATIVE_ACCELERATION_NED_Z]->Points[sensorFlowChart->Series[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_RELATIVE_ACCELERATION_NED_Z]->Points->Count - 1 - i]->SetValueY(0);
-
-
-
-								
-								
-							}
-#endif
-							//AddDataPointsFlag = false;
-							
 						}
 						else {
 							pJoyButtonList[kvp->Key]->BackColor = System::Drawing::Color::Gray;
@@ -3581,7 +3582,11 @@ protected:
 
 						kvp->Value->LastConsequtiveMatches = 0;
 					}
+
+					
+					SaveDirIndex++;
 				}
+				FileSave = false;
 			}
 
 private: System::Void MainForm_Shown(System::Object^  sender, System::EventArgs^  e) {

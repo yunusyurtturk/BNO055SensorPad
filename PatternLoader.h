@@ -10,8 +10,8 @@
 #include "DTWDistance.h"
 #include "DTWDistanceCustom.h"
 #include "MSE3D.h"
-
-extern bool FileSave;
+#include "SymbolicDiff.h"
+#include "SymbolicDiffDTW.h"
 
 namespace BNOControl {
 
@@ -63,10 +63,12 @@ namespace BNOControl {
 		PatternLoader(void)
 		{
 			InitializeComponent();
-
+			cbDistanceAlgorithm->Items->Add(gcnew SignalProcessing::SymbolicDiffDTW());
+			cbDistanceAlgorithm->Items->Add(gcnew SignalProcessing::SymbolicDiff());
 			cbDistanceAlgorithm->Items->Add(gcnew SignalProcessing::DTWDistance(5));
 			cbDistanceAlgorithm->Items->Add(gcnew SignalProcessing::DTWDistanceCustom(5));
 			cbDistanceAlgorithm->Items->Add(gcnew SignalProcessing::MSE3D());
+			
 			cbDistanceAlgorithm->SelectedIndex = 0;
 		
 		}
@@ -189,6 +191,7 @@ namespace BNOControl {
 			this->tbFirstSampleNo->Size = System::Drawing::Size(100, 20);
 			this->tbFirstSampleNo->TabIndex = 2;
 			this->tbFirstSampleNo->Text = L"22";
+			this->tbFirstSampleNo->TextChanged += gcnew System::EventHandler(this, &PatternLoader::tbFirstSampleNo_TextChanged);
 			// 
 			// tbLastSampleNo
 			// 
@@ -198,6 +201,7 @@ namespace BNOControl {
 			this->tbLastSampleNo->Size = System::Drawing::Size(100, 20);
 			this->tbLastSampleNo->TabIndex = 3;
 			this->tbLastSampleNo->Text = L"110";
+			this->tbLastSampleNo->TextChanged += gcnew System::EventHandler(this, &PatternLoader::tbLastSampleNo_TextChanged);
 			// 
 			// label1
 			// 
@@ -409,18 +413,20 @@ namespace BNOControl {
 
 		}
 
-		array<array<float> ^> ^p_events = pActionBuffer->GetQueue()->ToArray();
+		if(nullptr != pActionBuffer){
+			array<array<float> ^> ^p_events = pActionBuffer->GetQueue()->ToArray();
 
-		for (int i = 0; i < p_events->Length; i++) {
+			for (int i = 0; i < p_events->Length; i++) {
 
-			for (int j = 1; j < p_events[i]->Length; j++) {
-				//cPattern->Series[j - 1]->Points->AddXY(p_events[i][0], p_events[i][j]); // Discard timestamp
-				cPattern->Series[j - 1]->Points->AddXY(i, p_events[i][j]); // Discard timestamp
-			}
+				for (int j = 1; j < p_events[i]->Length; j++) {
+					//cPattern->Series[j - 1]->Points->AddXY(p_events[i][0], p_events[i][j]); // Discard timestamp
+					cPattern->Series[j - 1]->Points->AddXY(i, p_events[i][j]); // Discard timestamp
+				}
 			
+			}
+			cPattern->ChartAreas[0]->AxisY->MaximumAutoSize = true;
+			cPattern->Update();
 		}
-		cPattern->ChartAreas[0]->AxisY->MaximumAutoSize = true;
-		cPattern->Update();
 
 	}
 public:
@@ -528,6 +534,30 @@ private: System::Void clbSensorTypes_ItemCheck(System::Object^  sender, System::
 	}
 
 	
+}
+private: System::Void tbFirstSampleNo_TextChanged(System::Object^  sender, System::EventArgs^  e) {
+
+	double min_val;
+	if (Double::TryParse(((TextBox ^)sender)->Text, min_val)) {
+		if ( min_val > -1 && min_val < cPattern->ChartAreas[0]->AxisX->Maximum) {
+			cPattern->ChartAreas[0]->AxisX->Minimum = min_val;
+
+		}
+	}
+
+
+}
+private: System::Void tbLastSampleNo_TextChanged(System::Object^  sender, System::EventArgs^  e) {
+	double max_val, min_val;
+	if (Double::TryParse(((TextBox ^)sender)->Text, max_val)) {
+		if (max_val > cPattern->ChartAreas[0]->AxisX->Minimum ) {
+
+			cPattern->ChartAreas[0]->AxisX->Maximum = max_val;
+			cPattern->ChartAreas[0]->AxisX->IsMarginVisible = false;
+			
+
+		}
+	}
 }
 };
 }

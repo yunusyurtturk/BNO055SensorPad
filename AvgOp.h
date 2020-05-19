@@ -6,8 +6,10 @@ namespace SignalProcessing
 {
 	ref class AvgOp : public Operation {
 	private:
+		String ^name;
 		unsigned int Order;
 		unsigned int SensorDataIndex;
+		double threshold;
 	public:
 		AvgOp(unsigned int order, unsigned int sensor_data_index) {
 
@@ -20,6 +22,45 @@ namespace SignalProcessing
 				Order = 2;
 			}
 		}
+
+		property double Threshold {
+			double get() {
+				return threshold;
+			}
+			void set(double val) {
+				threshold = val;
+			}
+		}
+
+		property String ^Name {
+			String ^get() {
+				return name;
+			}
+			void set(String ^val) {
+				name = val;
+			}
+		}
+
+		virtual void SetName(String ^p_name)
+		{
+			this->Name = p_name;
+		}
+		virtual String ^GetName()
+		{
+			return this->Name;
+		}
+
+		virtual array<array<float>^> ^ PreprocessActionTemplate(array<array<float> ^> ^p_saved_action_definition, array<int> ^p_sdi)
+		{
+			return p_saved_action_definition;
+		}
+
+		virtual void SetFileSaveEnabled(boolean val, double threshold)
+		{
+			Threshold = threshold;
+			//FileSave = true;
+		}
+
 		virtual array<double> ^ Apply(array<array<float> ^> ^p_saved_action_definition, array<array<float> ^> ^p_last_actions, array<int> ^p_data_offsets) override
 		{
 			return nullptr;

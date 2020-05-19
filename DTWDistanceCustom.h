@@ -1,19 +1,18 @@
 #pragma once
 
 #include "ISignalOp.h"
-
+#include "DTW.h"
 extern bool FileSave;
 
 namespace SignalProcessing
 {
 	ref class DTWDistanceCustom : public Operation {
 	private:
-		unsigned int Neighborhood;
-		String ^name;
+unsigned int Neighborhood;
+String ^name;
+double threshold;
 	private:
-		static double Distance(float p_1, float p_2) {
-			return Math::Abs(p_1 - p_2);
-		}
+	
 	public:
 		DTWDistanceCustom(unsigned int neighborhood) {
 
@@ -30,14 +29,45 @@ namespace SignalProcessing
 			}
 		}
 
+		property double Threshold {
+			double get() {
+				return threshold;
+			}
+			void set(double val) {
+				threshold = val;
+			}
+		}
+
+		virtual void SetName(String ^p_name)
+		{
+			this->Name = p_name;
+		}
+		virtual String ^GetName()
+		{
+			return this->Name;
+		}
+
+		virtual array<array<float>^> ^ PreprocessActionTemplate(array<array<float> ^> ^p_saved_action_definition, array<int> ^p_sdi)
+		{
+			return p_saved_action_definition;
+		}
 
 
 		virtual array<ViewSerialEvent> ^Apply(array<ViewSerialEvent> ^p_action)
 		{
 			return nullptr;
 		}
+		virtual virtual void SetFileSaveEnabled(boolean val, double threshold)
+		{
+			Threshold = threshold;
+			FileSave = true;
+		}
 		virtual array<double>^ Apply(array<array<float> ^> ^p_saved_action_definition, array<array<float> ^> ^p_last_actions, array<int> ^p_data_offsets) override
 		{
+			unsigned int max_dtw_deviate = (p_saved_action_definition->Length * 0.05f > 1)?(p_saved_action_definition->Length * 0.05f > 1):1;
+
+			return DTW::Apply(p_saved_action_definition, p_last_actions, p_data_offsets);
+#if 0
 			double distance = 0;
 			unsigned int sensor_data_index_of_saved = 0;
 			unsigned int sensor_data_index_of_last = p_data_offsets[0];
@@ -52,52 +82,37 @@ namespace SignalProcessing
 
 			array<KeyValuePair<int, int> ^> ^pDistancePath = gcnew array<KeyValuePair<int, int> ^>(saved_action_length * 2);
 			array<float, 2> ^CMatrix = gcnew array<float, 2>(saved_action_length, saved_action_length);
-/*
-			for (int i = 0; i < saved_action_length; i++) {
-				p_saved_action_definition[i][0] = i;
 
-				p_last_actions[i][0] = 1;
-			}*/
-			
-			for (i = 1; i < saved_action_length; i++) {
-				for (j = 1; j < saved_action_length; j++) {
-					CMatrix[j, i] = 999999;
-				}
-			}
-			/*
-			for (i = Neighborhood + 1, j = Neighborhood + 1; j < saved_action_length, i < last_action_length; i++, j++) {
+			unsigned int max_dtw_deviate = p_saved_action_definition->Length * 0.05f;
 
-				CMatrix[j - Neighborhood, i] = 999999;
-				CMatrix[j, i - Neighborhood] = 999999;
-
-
-			}*/
 
 			for (int sdi = 0; sdi < p_data_offsets->Length; sdi++) {
 
 				sensor_data_index_of_last = p_data_offsets[sdi];
 				sensor_data_index_of_saved = sdi;
 
-				CMatrix[0, 0] = Distance(p_saved_action_definition[0][sensor_data_index_of_saved], p_last_actions[0][sensor_data_index_of_last]);
+				//sensor_data_index_of_last = sdi;
+
+				CMatrix[0, 0] = DTW::Distance(p_saved_action_definition[0][sensor_data_index_of_saved], p_last_actions[0][sensor_data_index_of_last]);
 
 				for (int i = 1; i < saved_action_length; i++) {
 
-					CMatrix[0, i] = Distance(p_saved_action_definition[0][sensor_data_index_of_saved], p_last_actions[i][sensor_data_index_of_last]) + CMatrix[0, i - 1];
+					CMatrix[0, i] = DTW::Distance(p_saved_action_definition[0][sensor_data_index_of_saved], p_last_actions[i][sensor_data_index_of_last]) + CMatrix[0, i - 1];
 
 				}
 
 				for (int j = 1; j < saved_action_length; j++) {
 
-					CMatrix[j, 0] = Distance(p_saved_action_definition[j][sensor_data_index_of_saved], p_last_actions[0][sensor_data_index_of_last]) + CMatrix[j - 1, 0];
+					CMatrix[j, 0] = DTW::Distance(p_saved_action_definition[j][sensor_data_index_of_saved], p_last_actions[0][sensor_data_index_of_last]) + CMatrix[j - 1, 0];
 
 				}
 
 				/* C[0, 0] */
-				CMatrix[0, 0] = Distance(p_saved_action_definition[0][sensor_data_index_of_saved], p_last_actions[0][sensor_data_index_of_last]);
+				CMatrix[0, 0] = DTW::Distance(p_saved_action_definition[0][sensor_data_index_of_saved], p_last_actions[0][sensor_data_index_of_last]);
 				/* END - C[0, 0] */
 
 				/* C[1, 1] */
-				CMatrix[1, 1] = Distance(p_saved_action_definition[1][sensor_data_index_of_saved], p_last_actions[1][sensor_data_index_of_last]);
+				CMatrix[1, 1] = DTW::Distance(p_saved_action_definition[1][sensor_data_index_of_saved], p_last_actions[1][sensor_data_index_of_last]);
 
 				min_neighbourhood = CMatrix[0, 0];
 
@@ -115,72 +130,34 @@ namespace SignalProcessing
 
 				diagonal_counter = saved_action_length;
 
-				for (diagonal_counter = 2; diagonal_counter < saved_action_length; diagonal_counter++) {
+				unsigned int greater_length_sample = saved_action_length;
+				if (last_action_length > saved_action_length) {
 
-
-					for (j = diagonal_counter - 1; ((diagonal_counter - j < Neighborhood) && (j > 0) ); j--)
-					{
-
-						CMatrix[j, diagonal_counter] = Distance(p_saved_action_definition[j][sensor_data_index_of_saved], p_last_actions[diagonal_counter][sensor_data_index_of_last]);
-
-
-						min_neighbourhood = CMatrix[j - 1, diagonal_counter - 1];
-
-						if (CMatrix[j - 1, diagonal_counter] < min_neighbourhood) {
-							min_neighbourhood = CMatrix[j - 1, diagonal_counter];
-						}
-						if (CMatrix[j, diagonal_counter - 1] < min_neighbourhood)
-						{
-							min_neighbourhood = CMatrix[j, diagonal_counter - 1];
-						}
-
-						CMatrix[j, diagonal_counter] = CMatrix[j, diagonal_counter] + min_neighbourhood;
-
-
-					}
-
-					for (i = diagonal_counter - 1; ((diagonal_counter - i < Neighborhood) && (i > 0)); i--) {
-
-						CMatrix[diagonal_counter, i] = Distance(p_saved_action_definition[diagonal_counter][sensor_data_index_of_saved], p_last_actions[i][sensor_data_index_of_last]);
-
-
-						min_neighbourhood = CMatrix[diagonal_counter - 1, i - 1];
-
-						if (CMatrix[diagonal_counter - 1, i] < min_neighbourhood) {
-							min_neighbourhood = CMatrix[diagonal_counter - 1, i];
-						}
-						if (CMatrix[diagonal_counter, i - 1] < min_neighbourhood)
-						{
-							min_neighbourhood = CMatrix[diagonal_counter, i - 1];
-						}
-
-						CMatrix[diagonal_counter, i] = CMatrix[diagonal_counter, i] + min_neighbourhood;
-
-					}
-
-					CMatrix[diagonal_counter, diagonal_counter] = Distance(p_saved_action_definition[diagonal_counter][sensor_data_index_of_saved], p_last_actions[diagonal_counter][sensor_data_index_of_last]);
-
-					min_neighbourhood = CMatrix[diagonal_counter - 1, diagonal_counter - 1];
-
-					if (CMatrix[diagonal_counter - 1, diagonal_counter] < min_neighbourhood) {
-						min_neighbourhood = CMatrix[diagonal_counter - 1, diagonal_counter];
-					}
-					if (CMatrix[diagonal_counter, diagonal_counter - 1] < min_neighbourhood)
-					{
-						min_neighbourhood = CMatrix[diagonal_counter, diagonal_counter - 1];
-					}
-
-					CMatrix[diagonal_counter, diagonal_counter] = CMatrix[diagonal_counter, diagonal_counter] + min_neighbourhood;
-
+					greater_length_sample = last_action_length;
 				}
-#if 0
-					for (j = diagonal_counter - 1; j > 0; j--)
+
+				for (diagonal_counter = 1; diagonal_counter < greater_length_sample; diagonal_counter++) {
+
+					if ((diagonal_counter + max_dtw_deviate + 1) < saved_action_length){
+
+						CMatrix[diagonal_counter + max_dtw_deviate + 1, diagonal_counter] = 9999.0f;
+					}
+
+					if ((diagonal_counter + max_dtw_deviate + 1) < last_action_length) {
+
+						CMatrix[diagonal_counter, diagonal_counter + max_dtw_deviate + 1] = 9999.0f;
+					}
+
+					
+
+					
+
+					for (j = diagonal_counter; j < (diagonal_counter + max_dtw_deviate + 1) && j < saved_action_length ; j++)
 					{
-						for (i = diagonal_counter -1; i > 0; i--) {
+						for (i = diagonal_counter; i < (diagonal_counter + max_dtw_deviate + 1) && i < last_action_length; i++)
+						{
 
-							min_neighbourhood = 999999.0f;
-
-							
+							CMatrix[j, i] = DTW::Distance(p_saved_action_definition[j][sensor_data_index_of_saved], p_last_actions[i][sensor_data_index_of_last]);
 
 							min_neighbourhood = CMatrix[j - 1, i - 1];
 
@@ -192,206 +169,214 @@ namespace SignalProcessing
 								min_neighbourhood = CMatrix[j, i - 1];
 							}
 
-							CMatrix[diagonal_counter, diagonal_counter] = CMatrix[diagonal_counter, diagonal_counter] + min_neighbourhood;
+							CMatrix[j, i] = CMatrix[j, i] + min_neighbourhood;
 
 						}
 					}
-#endif
+				}
 
+				j = saved_action_length - 1;
+				i = saved_action_length - 1;
 
-					j = saved_action_length - 1;
-					i = saved_action_length - 1;
+				int distance_counter = 0;
+				int temp_i_decrement, temp_j_decrement;
+				int dtw_range = saved_action_length + saved_action_length * 0.30f;
+				double dtw_distance = 0;
 
-					int distance_counter = 0;
-					int temp_i_decrement, temp_j_decrement;
+				while (i >= 0 && j >= 0) {
 
-					while (i >= 0 && j >= 0) {
+					KeyValuePair<int, int> ^p_kvp = KeyValuePair<int, int>(j + 1, i + 1);
+					pDistancePath[distance_counter] = p_kvp;
+					distance_counter++;
 
-						KeyValuePair<int, int> ^p_kvp = KeyValuePair<int, int>(j + 1, i + 1);
-						pDistancePath[distance_counter] = p_kvp;
-						distance_counter++;
+					if (distance_counter > dtw_range) {
 
-						action_original_length[sdi] = action_original_length[sdi] + Math::Pow(p_saved_action_definition[j][sensor_data_index_of_saved], 2);
+						//distance = 9999999;
+						//break;
+					}
 
-						temp_i_decrement = 1;
-						temp_j_decrement = 1;
+					action_original_length[sdi] = action_original_length[sdi] + Math::Pow(p_saved_action_definition[j][sensor_data_index_of_saved], 2);
 
-						//distance = distance + CMatrix[j, i];
-						distance = distance + Math::Pow((p_saved_action_definition[j][sensor_data_index_of_saved] - p_last_actions[i][sensor_data_index_of_last]), 2);
+					temp_i_decrement = 1;
+					temp_j_decrement = 1;
 
-						if (i != 0 && j != 0) {
+					//distance = distance + CMatrix[j, i];
+					dtw_distance = dtw_distance + Math::Pow((p_saved_action_definition[j][sensor_data_index_of_saved] - p_last_actions[i][sensor_data_index_of_last]), 2);
 
-							min_neighbourhood = CMatrix[j - 1, i - 1];
+					if (i != 0 && j != 0) {
 
-							if (CMatrix[j, i - 1] < min_neighbourhood) {
-								min_neighbourhood = CMatrix[j, i - 1];
-								temp_i_decrement = 1;
-								temp_j_decrement = 0;
-							}
+						min_neighbourhood = CMatrix[j - 1, i - 1];
 
-							if (CMatrix[j - 1, i] < min_neighbourhood) {
-								min_neighbourhood = CMatrix[j - 1, i];
-								temp_i_decrement = 0;
-								temp_j_decrement = 1;
-							}
-						}
-						else if (i == 0 && j == 0) {
-							break;
-						}
-						else if (i == 0) {
-
-							min_neighbourhood = CMatrix[j - 1, i];
-							temp_i_decrement = 0;
-							temp_j_decrement = 1;
-
-						}
-						else if (j == 0) {
-
+						if (CMatrix[j, i - 1] < min_neighbourhood) {
 							min_neighbourhood = CMatrix[j, i - 1];
 							temp_i_decrement = 1;
 							temp_j_decrement = 0;
 						}
 
+						if (CMatrix[j - 1, i] < min_neighbourhood) {
+							min_neighbourhood = CMatrix[j - 1, i];
+							temp_i_decrement = 0;
+							temp_j_decrement = 1;
+						}
+					}
+					else if (i == 0 && j == 0) {
+						break;
+					}
+					else if (i == 0) {
+
+						min_neighbourhood = CMatrix[j - 1, i];
+						temp_i_decrement = 0;
+						temp_j_decrement = 1;
+
+					}
+					else if (j == 0) {
+
+						min_neighbourhood = CMatrix[j, i - 1];
+						temp_i_decrement = 1;
+						temp_j_decrement = 0;
+						}
 
 
 
 
-						i = i - temp_i_decrement;
-						j = j - temp_j_decrement;
+
+					i = i - temp_i_decrement;
+					j = j - temp_j_decrement;
 
 					}
 
+				distance = distance + dtw_distance * ((sdi + 1) / (float)p_data_offsets->Length);
 
+				if (distance < (5.2*5.2)) {
+				//	FileSave = true;
+				}
 
-					if (FileSave) {
-						static int file = 0;
-						FileSave = false;
-						file++;
+				if (FileSave) {
 
+					String ^dir = gcnew String(Environment::CurrentDirectory + "\\SensorData\\Signals\\" + SaveDirIndex.ToString() + this->Name);
+					if (!IO::Directory::Exists(dir)) {
 
-						String ^dir = gcnew String(Environment::CurrentDirectory + "\\SensorData\\Signals\\" + file.ToString());
-						if (!IO::Directory::Exists(dir)) {
-
-							IO::Directory::CreateDirectory(dir);
-						}
-						/****************************/
-						String ^path = gcnew String(dir + "\\saved_action.txt");
-
-						System::IO::TextWriter ^pTextWriter;
-						if (!IO::File::Exists(path)) {
-
-							pTextWriter = gcnew System::IO::StreamWriter(path, true);
-							pTextWriter->Flush();
-
-						}
-						for (j = 0; j < saved_action_length; j++) {
-							pTextWriter->Write(p_saved_action_definition[saved_action_length - j - 1][sensor_data_index_of_saved] + "\t");
-						}
-						pTextWriter->Flush();
-						pTextWriter->Close();
-
-						/****************************/
-						path = gcnew String(dir + "\\last_action.txt");
-
-
-						if (!IO::File::Exists(path)) {
-
-							pTextWriter = gcnew System::IO::StreamWriter(path, true);
-							pTextWriter->Flush();
-
-						}
-						for (j = 0; j < saved_action_length; j++) {
-							pTextWriter->Write(p_last_actions[last_action_length - j - 1][sensor_data_index_of_last] + "\t");
-						}
-						pTextWriter->Flush();
-						pTextWriter->Close();
-
-						/************DISTANCE****************/
-						path = gcnew String(dir + "\\distance.txt");
-
-
-						if (!IO::File::Exists(path)) {
-
-							pTextWriter = gcnew System::IO::StreamWriter(path, true);
-							pTextWriter->Flush();
-
-						}
-						for (j = 0; j < saved_action_length; j++) {
-							pTextWriter->Write(distance + "\t");
-						}
-						pTextWriter->Flush();
-						pTextWriter->Close();
-
-						/****************************/
-						path = gcnew String(dir + "\\distance_path_ij.txt");
-
-
-						if (!IO::File::Exists(path)) {
-
-							pTextWriter = gcnew System::IO::StreamWriter(path, true);
-							pTextWriter->Flush();
-
-						}
-
-						for (int i = 0; i < pDistancePath->Length; i++) {
-							if (pDistancePath[i] != nullptr) {
-
-								pTextWriter->Write(pDistancePath[i]->Key + "\t");
-
-							}
-						}
-						pTextWriter->Flush();
-						pTextWriter->Close();
-
-						/****************************/
-						path = gcnew String(dir + "\\distance_path_ix.txt");
-
-
-						if (!IO::File::Exists(path)) {
-
-							pTextWriter = gcnew System::IO::StreamWriter(path, true);
-							pTextWriter->Flush();
-
-						}
-
-						for (int i = 0; i < pDistancePath->Length; i++) {
-							if (pDistancePath[i] != nullptr) {
-
-								pTextWriter->Write(pDistancePath[i]->Value + "\t");
-
-							}
-						}
-						pTextWriter->Flush();
-						pTextWriter->Close();
-
-
-						/****************************/
-						path = gcnew String(dir + "\\CMatrix.txt");
-
-						if (!IO::File::Exists(path)) {
-
-							pTextWriter = gcnew System::IO::StreamWriter(path, true);
-							pTextWriter->Flush();
-
-						}
-						for (j = 0; j < saved_action_length; j++) {
-							for (i = 0; i < saved_action_length; i++) {
-
-								pTextWriter->Write(CMatrix[j, i] + "\t");
-							}
-
-							pTextWriter->WriteLine();
-						}
-
-						pTextWriter->Flush();
-						pTextWriter->Close();
+						IO::Directory::CreateDirectory(dir);
 					}
-				
-				distances[sdi] = Math::Sqrt(distance / action_original_length[sdi]);
+					/****************************/
+					String ^path = gcnew String(dir + "\\saved_action.txt");
+
+					System::IO::TextWriter ^pTextWriter;
+					if (!IO::File::Exists(path)) {
+
+						pTextWriter = gcnew System::IO::StreamWriter(path, true);
+						pTextWriter->Flush();
+
+					}
+					for (j = 0; j < saved_action_length; j++) {
+						pTextWriter->Write(p_saved_action_definition[saved_action_length - j - 1][sensor_data_index_of_saved] + "\t");
+					}
+					pTextWriter->Flush();
+					pTextWriter->Close();
+
+					/****************************/
+					path = gcnew String(dir + "\\last_action.txt");
+
+
+					if (!IO::File::Exists(path)) {
+
+						pTextWriter = gcnew System::IO::StreamWriter(path, true);
+						pTextWriter->Flush();
+
+					}
+					for (j = 0; j < saved_action_length; j++) {
+						pTextWriter->Write(p_last_actions[last_action_length - j - 1][sensor_data_index_of_last] + "\t");
+					}
+					pTextWriter->Flush();
+					pTextWriter->Close();
+
+					/************DISTANCE****************/
+					path = gcnew String(dir + "\\distance.txt");
+
+
+					if (!IO::File::Exists(path)) {
+
+						pTextWriter = gcnew System::IO::StreamWriter(path, true);
+						pTextWriter->Flush();
+
+					}
+					for (j = 0; j < saved_action_length; j++) {
+						pTextWriter->Write(distance + "\t");
+					}
+					pTextWriter->Flush();
+					pTextWriter->Close();
+
+					/****************************/
+					path = gcnew String(dir + "\\distance_path_ij.txt");
+
+
+					if (!IO::File::Exists(path)) {
+
+						pTextWriter = gcnew System::IO::StreamWriter(path, true);
+						pTextWriter->Flush();
+
+					}
+
+					for (int i = 0; i < pDistancePath->Length; i++) {
+						if (pDistancePath[i] != nullptr) {
+
+							pTextWriter->Write(pDistancePath[i]->Key + "\t");
+
+						}
+					}
+					pTextWriter->Flush();
+					pTextWriter->Close();
+
+					/****************************/
+					path = gcnew String(dir + "\\distance_path_ix.txt");
+
+
+					if (!IO::File::Exists(path)) {
+
+						pTextWriter = gcnew System::IO::StreamWriter(path, true);
+						pTextWriter->Flush();
+
+					}
+
+					for (int i = 0; i < pDistancePath->Length; i++) {
+						if (pDistancePath[i] != nullptr) {
+
+							pTextWriter->Write(pDistancePath[i]->Value + "\t");
+
+						}
+					}
+					pTextWriter->Flush();
+					pTextWriter->Close();
+
+
+					/****************************/
+					path = gcnew String(dir + "\\CMatrix.txt");
+
+					if (!IO::File::Exists(path)) {
+
+						pTextWriter = gcnew System::IO::StreamWriter(path, true);
+						pTextWriter->Flush();
+
+					}
+					for (j = 0; j < saved_action_length; j++) {
+						for (i = 0; i < saved_action_length; i++) {
+
+							pTextWriter->Write(CMatrix[j, i] + "\t");
+						}
+
+						pTextWriter->WriteLine();
+					}
+
+					pTextWriter->Flush();
+					pTextWriter->Close();
+				}
+
+				distances[sdi] = Math::Sqrt(distance);
 				distance = 0;
-			}
+				}
 			return distances;
-		}
-	};
+#endif
+			}
+		};
 
 }
