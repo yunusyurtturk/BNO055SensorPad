@@ -116,7 +116,7 @@ namespace SignalProcessing
 		static array<array<float>^> ^ Symbolize(array<array<float> ^> ^p_saved_action_definition, array<int> ^p_sdi, unsigned int order)
 		{
 			Collections::Generic::List<array<float>^ > ^p_symbolic_generic_list = gcnew Collections::Generic::List<array<float>^ >();
-			array<array<float>^> ^p_symbolic_list = gcnew array<array<float>^>(Math::Ceiling(p_saved_action_definition->Length / order));
+			array<array<float>^> ^p_symbolic_list = gcnew array<array<float>^>(Math::Ceiling(p_saved_action_definition->Length / (order-1)));
 
 			p_saved_action_definition = SymbolicDiffDTW::Normalize(p_saved_action_definition, p_sdi, -1, 1);
 			float conv_constant = (3 / (float)(1 - (-1)));
@@ -132,12 +132,26 @@ namespace SignalProcessing
 			unsigned int symbolic_index = 0;
 
 
-			for (int i = 0; (i + order) < saved_action_length; i += order) {
+			for (int i = 0; (i + order - 1) <= saved_action_length; i += (order -1)) {
 
 				for (int sdi = 0; sdi < p_sdi->Length; sdi++)
 				{
+					/* -2 -1 0 1 2 (Symbols) */
 
-					current_symbol_angle = Math::Round((p_saved_action_definition[i + order - 1][sdi] - p_saved_action_definition[i][sdi])  * conv_constant);
+					double diff = p_saved_action_definition[i + order - 1][sdi] - p_saved_action_definition[i][sdi];
+					int sign = Math::Sign(diff);
+
+					if (Math::Abs(diff) < 0.25) {
+
+						current_symbol_angle = 0;
+					}else if (Math::Abs(diff) < 0.5) {
+
+						current_symbol_angle = 1 * sign;
+					}
+					else {
+						current_symbol_angle = 2 * sign;
+					}
+					//current_symbol_angle = Math::Round((p_saved_action_definition[i + order - 1][sdi] - p_saved_action_definition[i][sdi])  * conv_constant);
 					p_symbolic_list[symbolic_index][sdi] = current_symbol_angle;
 					symbolic_index++;
 
@@ -222,8 +236,8 @@ namespace SignalProcessing
 
 			distances = DTW::Apply(p_saved_action_definition, symbolic_list, p_data_offsets);
 
-			if (distances[0] <= 1) {
-				//FileSave = true;
+			if (distances[0] <= 0) {
+			//	FileSave = true;
 			}
 
 			if (FileSave) {
@@ -245,7 +259,7 @@ namespace SignalProcessing
 
 				}
 				for (int j = 0; j < saved_action_length; j++) {
-					pTextWriter->Write(p_saved_action_definition[saved_action_length - j - 1][sensor_data_index_of_saved] + "\t");
+					pTextWriter->Write(p_saved_action_definition[j][sensor_data_index_of_saved] + "\t");
 				}
 				pTextWriter->Flush();
 				pTextWriter->Close();

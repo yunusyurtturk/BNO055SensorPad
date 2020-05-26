@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ISignalOp.h"
+#include "DTW.h"
 
 extern bool FileSave;
 extern unsigned int SaveDirIndex;
@@ -68,6 +69,12 @@ namespace SignalProcessing
 		}
 		virtual array<double>^ Apply(array<array<float> ^> ^p_saved_action_definition, array<array<float> ^> ^p_last_actions, array<int> ^p_data_offsets) override
 		{
+
+			unsigned int max_dtw_deviate = (p_saved_action_definition->Length * 0.05f > 1) ? (p_saved_action_definition->Length * 0.05f > 1) : 1;
+
+			return DTW::Apply(p_saved_action_definition, p_last_actions, p_data_offsets, 3);
+
+#if 0
 			double distance = 0;
 			unsigned int sensor_data_index_of_saved = 0;
 			unsigned int sensor_data_index_of_last = p_data_offsets[0];
@@ -367,7 +374,9 @@ namespace SignalProcessing
 				distances[sdi] = Math::Sqrt(distance);
 				distance = 0;
 			}
+
 			return distances;
+#endif
 		}
 	};
 

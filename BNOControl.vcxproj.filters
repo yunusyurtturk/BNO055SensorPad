@@ -194,6 +194,18 @@
     <ClInclude Include="DTW.h">
       <Filter>SignalProcessing</Filter>
     </ClInclude>
+    <ClInclude Include="SymbolicDiffVectoredDTW.h">
+      <Filter>SignalProcessing</Filter>
+    </ClInclude>
+    <ClInclude Include="SaxDiffDTW.h">
+      <Filter>SignalProcessing</Filter>
+    </ClInclude>
+    <ClInclude Include="RMS.h">
+      <Filter>Operations</Filter>
+    </ClInclude>
+    <ClInclude Include="DTWSax.h">
+      <Filter>SignalProcessing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Mainform.resx">

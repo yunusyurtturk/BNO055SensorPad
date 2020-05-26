@@ -12,6 +12,8 @@
 #include "MSE3D.h"
 #include "SymbolicDiff.h"
 #include "SymbolicDiffDTW.h"
+#include "SaxDiffDTW.h"
+#include "SymbolicDiffVectoredDTW.h"
 
 namespace BNOControl {
 
@@ -63,6 +65,9 @@ namespace BNOControl {
 		PatternLoader(void)
 		{
 			InitializeComponent();
+
+			cbDistanceAlgorithm->Items->Add(gcnew SignalProcessing::SymbolicDiffVectoredDTW());
+			cbDistanceAlgorithm->Items->Add(gcnew SignalProcessing::SaxDiffDTW());
 			cbDistanceAlgorithm->Items->Add(gcnew SignalProcessing::SymbolicDiffDTW());
 			cbDistanceAlgorithm->Items->Add(gcnew SignalProcessing::SymbolicDiff());
 			cbDistanceAlgorithm->Items->Add(gcnew SignalProcessing::DTWDistance(5));
@@ -120,10 +125,10 @@ namespace BNOControl {
 		/// </summary>
 		void InitializeComponent(void)
 		{
-			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea1 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-			System::Windows::Forms::DataVisualization::Charting::Legend^  legend1 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
-			System::Windows::Forms::DataVisualization::Charting::Series^  series1 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
-			System::Windows::Forms::DataVisualization::Charting::Series^  series2 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea2 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^  legend2 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::Series^  series3 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
+			System::Windows::Forms::DataVisualization::Charting::Series^  series4 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
 			this->button1 = (gcnew System::Windows::Forms::Button());
 			this->cPattern = (gcnew System::Windows::Forms::DataVisualization::Charting::Chart());
 			this->tbFirstSampleNo = (gcnew System::Windows::Forms::TextBox());
@@ -163,22 +168,22 @@ namespace BNOControl {
 			this->cPattern->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
 				| System::Windows::Forms::AnchorStyles::Left)
 				| System::Windows::Forms::AnchorStyles::Right));
-			chartArea1->Name = L"ChartArea1";
-			this->cPattern->ChartAreas->Add(chartArea1);
-			legend1->Name = L"Legend1";
-			this->cPattern->Legends->Add(legend1);
+			chartArea2->Name = L"ChartArea1";
+			this->cPattern->ChartAreas->Add(chartArea2);
+			legend2->Name = L"Legend1";
+			this->cPattern->Legends->Add(legend2);
 			this->cPattern->Location = System::Drawing::Point(186, 13);
 			this->cPattern->Name = L"cPattern";
-			series1->ChartArea = L"ChartArea1";
-			series1->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Line;
-			series1->Legend = L"Legend1";
-			series1->Name = L"Series1";
-			series2->ChartArea = L"ChartArea1";
-			series2->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Line;
-			series2->Legend = L"Legend1";
-			series2->Name = L"Series2";
-			this->cPattern->Series->Add(series1);
-			this->cPattern->Series->Add(series2);
+			series3->ChartArea = L"ChartArea1";
+			series3->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Line;
+			series3->Legend = L"Legend1";
+			series3->Name = L"Series1";
+			series4->ChartArea = L"ChartArea1";
+			series4->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Line;
+			series4->Legend = L"Legend1";
+			series4->Name = L"Series2";
+			this->cPattern->Series->Add(series3);
+			this->cPattern->Series->Add(series4);
 			this->cPattern->Size = System::Drawing::Size(769, 407);
 			this->cPattern->TabIndex = 1;
 			this->cPattern->Text = L"chPattern";
@@ -341,9 +346,9 @@ namespace BNOControl {
 			// cbDistanceAlgorithm
 			// 
 			this->cbDistanceAlgorithm->FormattingEnabled = true;
-			this->cbDistanceAlgorithm->Location = System::Drawing::Point(435, 437);
+			this->cbDistanceAlgorithm->Location = System::Drawing::Point(257, 437);
 			this->cbDistanceAlgorithm->Name = L"cbDistanceAlgorithm";
-			this->cbDistanceAlgorithm->Size = System::Drawing::Size(121, 21);
+			this->cbDistanceAlgorithm->Size = System::Drawing::Size(241, 21);
 			this->cbDistanceAlgorithm->TabIndex = 17;
 			// 
 			// PatternLoader

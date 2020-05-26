@@ -199,6 +199,7 @@
     <ClInclude Include="DTW.h" />
     <ClInclude Include="DTWDistance.h" />
     <ClInclude Include="DTWDistanceCustom.h" />
+    <ClInclude Include="DTWSax.h" />
     <ClInclude Include="ISignalOp.h" />
     <ClInclude Include="KalmanEstimator.h" />
     <ClInclude Include="MadgwickAHRS.h" />
@@ -224,6 +225,8 @@
     </ClInclude>
     <ClInclude Include="PreprocessOps.h" />
     <ClInclude Include="RelativeMovement.h" />
+    <ClInclude Include="RMS.h" />
+    <ClInclude Include="SaxDiffDTW.h" />
     <ClInclude Include="SensorDataTypes.h" />
     <ClInclude Include="SensorOps.h" />
     <ClInclude Include="SensorValueOps.h" />
@@ -231,6 +234,7 @@
     <ClInclude Include="StandartDeviation.h" />
     <ClInclude Include="SymbolicDiff.h" />
     <ClInclude Include="SymbolicDiffDTW.h" />
+    <ClInclude Include="SymbolicDiffVectoredDTW.h" />
     <ClInclude Include="TestMain.h">
       <FileType>CppForm</FileType>
     </ClInclude>

@@ -17,6 +17,12 @@ namespace BNOControl {
 	public:
 		delegate void UpdateEventDelegate(unsigned int target_action, double threshold);
 		UpdateEventDelegate ^UpdateEvent;
+
+		delegate void FileSaveThresholdDelegate(unsigned int target_action, bool is_save_enabled, double threshold);
+		FileSaveThresholdDelegate ^FileSaveThresholdMethod;
+
+		delegate void ExportActionPatternDelegate(unsigned int target_action);
+		ExportActionPatternDelegate ^ExportActionPattern;
 	private:
 		double threshold;
 	private: System::Windows::Forms::Label^  label2;
@@ -25,6 +31,7 @@ namespace BNOControl {
 	private: System::Windows::Forms::TextBox^  tbFileSaveThreshold;
 	private: System::Windows::Forms::CheckBox^  cbFileSaveEnabled;
 	private: System::Windows::Forms::Button^  bFileSaveApply;
+	private: System::Windows::Forms::Button^  button1;
 			 unsigned int TargetAction;
 	public:
 		ActionSettings(unsigned int target_action)
@@ -84,6 +91,7 @@ namespace BNOControl {
 			this->tbFileSaveThreshold = (gcnew System::Windows::Forms::TextBox());
 			this->cbFileSaveEnabled = (gcnew System::Windows::Forms::CheckBox());
 			this->bFileSaveApply = (gcnew System::Windows::Forms::Button());
+			this->button1 = (gcnew System::Windows::Forms::Button());
 			this->SuspendLayout();
 			// 
 			// label1
@@ -165,12 +173,24 @@ namespace BNOControl {
 			this->bFileSaveApply->TabIndex = 8;
 			this->bFileSaveApply->Text = L"Apply";
 			this->bFileSaveApply->UseVisualStyleBackColor = true;
+			this->bFileSaveApply->Click += gcnew System::EventHandler(this, &ActionSettings::bFileSaveApply_Click);
+			// 
+			// button1
+			// 
+			this->button1->Location = System::Drawing::Point(298, 134);
+			this->button1->Name = L"button1";
+			this->button1->Size = System::Drawing::Size(100, 55);
+			this->button1->TabIndex = 9;
+			this->button1->Text = L"Save Action Pattern";
+			this->button1->UseVisualStyleBackColor = true;
+			this->button1->Click += gcnew System::EventHandler(this, &ActionSettings::button1_Click);
 			// 
 			// ActionSettings
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(441, 201);
+			this->Controls->Add(this->button1);
 			this->Controls->Add(this->bFileSaveApply);
 			this->Controls->Add(this->cbFileSaveEnabled);
 			this->Controls->Add(this->tbFileSaveThreshold);
@@ -188,5 +208,21 @@ namespace BNOControl {
 		}
 #pragma endregion
 	private: System::Void bActionThreshold_Click(System::Object^  sender, System::EventArgs^  e);
-	};
+	private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
+		
+		
+
+		ExportActionPattern(TargetAction);
+	}
+private: System::Void bFileSaveApply_Click(System::Object^  sender, System::EventArgs^  e) {
+
+	double threshold;
+	if (Double::TryParse(tbFileSaveThreshold->Text, threshold))
+	{
+		bool is_save_enabled = cbFileSaveEnabled->Checked;
+		FileSaveThresholdMethod(TargetAction, is_save_enabled, threshold);
+	}
+
+}
+};
 }

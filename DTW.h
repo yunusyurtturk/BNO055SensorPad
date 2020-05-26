@@ -5,6 +5,10 @@
 using namespace System;
 using namespace System::Collections::Generic;
 
+
+extern bool FileSave;
+extern unsigned int SaveDirIndex;
+
 ref class DTW
 {
 public:
@@ -14,6 +18,10 @@ public:
 
 	static array<double>^ Apply(array<array<float> ^> ^p_saved_action_definition, array<array<float> ^> ^p_last_actions, array<int> ^p_data_offsets)
 	{
+		return Apply(p_saved_action_definition, p_last_actions, p_data_offsets, 999);
+	}
+	static array<double>^ Apply(array<array<float> ^> ^p_saved_action_definition, array<array<float> ^> ^p_last_actions, array<int> ^p_data_offsets, unsigned int deviate)
+	{
 		double distance = 0;
 		unsigned int sensor_data_index_of_saved = 0;
 		unsigned int sensor_data_index_of_last = p_data_offsets[0];
@@ -21,7 +29,7 @@ public:
 		float min_neighbourhood;
 		const unsigned int const saved_action_length = p_saved_action_definition->Length;
 		const unsigned int const last_action_length = p_last_actions->Length;
-		unsigned int i, j;
+		int i, j;
 
 		array<double> ^distances = gcnew array<double>(p_data_offsets->Length);
 		array<double> ^action_original_length = gcnew array<double>(p_data_offsets->Length);
@@ -141,6 +149,8 @@ public:
 				temp_i_decrement = 1;
 				temp_j_decrement = 1;
 
+
+
 				//distance = distance + CMatrix[j, i];
 				dtw_distance = dtw_distance + Math::Pow((p_saved_action_definition[j][sensor_data_index_of_saved] - p_last_actions[i][sensor_data_index_of_last]), 2);
 
@@ -148,16 +158,20 @@ public:
 
 					min_neighbourhood = CMatrix[j - 1, i - 1];
 
-					if (CMatrix[j, i - 1] < min_neighbourhood) {
-						min_neighbourhood = CMatrix[j, i - 1];
-						temp_i_decrement = 1;
-						temp_j_decrement = 0;
+					if (Math::Abs(j - (i - 1)) <= deviate) {
+						if (CMatrix[j, i - 1] < min_neighbourhood) {
+							min_neighbourhood = CMatrix[j, i - 1];
+							temp_i_decrement = 1;
+							temp_j_decrement = 0;
+						}
 					}
 
-					if (CMatrix[j - 1, i] < min_neighbourhood) {
-						min_neighbourhood = CMatrix[j - 1, i];
-						temp_i_decrement = 0;
-						temp_j_decrement = 1;
+					if (Math::Abs((j - 1) - i) <= deviate) {
+						if (CMatrix[j - 1, i] < min_neighbourhood) {
+							min_neighbourhood = CMatrix[j - 1, i];
+							temp_i_decrement = 0;
+							temp_j_decrement = 1;
+						}
 					}
 				}
 				else if (i == 0 && j == 0) {
@@ -191,7 +205,7 @@ public:
 
 
 			if (FileSave) {
-
+				SaveDirIndex++;
 				String ^dir = gcnew String(Environment::CurrentDirectory + "\\SensorData\\Signals\\" + SaveDirIndex.ToString() + "DTW");
 				if (!IO::Directory::Exists(dir)) {
 
@@ -208,7 +222,7 @@ public:
 
 				}
 				for (j = 0; j < saved_action_length; j++) {
-					pTextWriter->Write(p_saved_action_definition[saved_action_length - j - 1][sensor_data_index_of_saved] + "\t");
+					pTextWriter->Write(p_saved_action_definition[j][sensor_data_index_of_saved] + "\t");
 				}
 				pTextWriter->Flush();
 				pTextWriter->Close();
@@ -223,8 +237,8 @@ public:
 					pTextWriter->Flush();
 
 				}
-				for (j = 0; j < saved_action_length; j++) {
-					pTextWriter->Write(p_last_actions[last_action_length - j - 1][sensor_data_index_of_last] + "\t");
+				for (j = 0; j < last_action_length; j++) {
+					pTextWriter->Write(p_last_actions[j][sensor_data_index_of_last] + "\t");
 				}
 				pTextWriter->Flush();
 				pTextWriter->Close();
@@ -298,7 +312,7 @@ public:
 
 				}
 				for (j = 0; j < saved_action_length; j++) {
-					for (i = 0; i < saved_action_length; i++) {
+					for (i = 0; i < last_action_length; i++) {
 
 						pTextWriter->Write(CMatrix[j, i] + "\t");
 					}

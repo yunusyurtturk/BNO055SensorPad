@@ -34,6 +34,7 @@
 
 bool FileSave = false;
 unsigned int SaveDirIndex = 0;
+double FileSaveThreshold = -1;
 
 namespace BNOControl {
 
@@ -612,7 +613,7 @@ private: System::Windows::Forms::Label^  label29;
 			clbDataComponents->Items->Add(gcnew DataComponent("DownAccDiff", SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_TEMP_ACC_DOWN_DIFF), false);
 
 			clbDataComponents->Items->Add(gcnew DataComponent("DownAccDiffCrossing", SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_TYPE_TEMP_ACC_DOWN_DIFF_CROSSING), false);
-			clbDataComponents->Items->Add(gcnew DataComponent("AccFilteredDownSTD", SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_FILTERED_NED_ACC_DOWN_STD), false);
+			clbDataComponents->Items->Add(gcnew DataComponent("RMSAccFilteredDown", SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_FILTERED_NED_ACC_DOWN_RMS), false);
 
 
 			
@@ -2897,7 +2898,7 @@ protected:
 	{
 		array<double> ^means = gcnew array<double>(1);
 		array<double> ^center_of_masses = gcnew array<double>(1);
-		array<double> ^std_devs = gcnew array<double>(1);
+		array<double> ^rms = gcnew array<double>(1);
 
 
 		array<array<float> ^> ^p_array = action_array->GetBuffer();
@@ -2918,10 +2919,11 @@ protected:
 
 
 
-			MeanAndCenterOffMass::Calculate(p_sub_array, 0, 0, means, center_of_masses);
-			StandartDeviation::Calculate(p_sub_array, 0, 0, means, std_devs);
+			//MeanAndCenterOffMass::Calculate(p_sub_array, 0, 0, means, center_of_masses);
+			//StandartDeviation::Calculate(p_sub_array, 0, 0, means, std_devs);
+			RMS::Calculate(p_sub_array, 0, 0, 0, p_sub_array->Length, rms);
 
-			sendor_data_array[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_FILTERED_NED_ACC_DOWN_STD] = std_devs[0];
+			sendor_data_array[SENSOR_DATA_TYPE_COUNT + SENSOR_DATA_FILTERED_NED_ACC_DOWN_RMS] = rms[0];
 		}
 
 
@@ -4010,6 +4012,53 @@ private: System::Void bAlgorithmTest_Click(System::Object^  sender, System::Even
 }
 private: System::Void pDirectionQuat1_Paint(System::Object^  sender, System::Windows::Forms::PaintEventArgs^  e) {
 }
+public: void FileSaveThresholdMethod(unsigned int target_action, bool is_save_enabled, double threshold)
+{
+	for each(KeyValuePair<unsigned int, ActionDefinition ^> ^kvp in pActions) {
+
+		if (kvp->Key == (target_action)) {
+
+
+			FileSaveThreshold = threshold;
+		}
+
+	}
+
+}
+public: void ExportActionPattern(unsigned int TargetAction)
+{
+	for each(KeyValuePair<unsigned int, ActionDefinition ^> ^kvp in pActions) {
+
+		if (kvp->Key == (TargetAction)) {
+			
+			array<array<float> ^> ^p_org_pattern = kvp->Value->GetOriginalPattern();
+			array<int> ^p_sdi = kvp->Value->GetSensorDataIndexs();
+			String ^dir = gcnew String(Environment::CurrentDirectory + "\\SensorData\\Signals\\Action" + TargetAction.ToString());
+			if (!IO::Directory::Exists(dir)) {
+
+				IO::Directory::CreateDirectory(dir);
+			}
+
+			String ^path = gcnew String(dir + "\\saved_original_action.txt");
+
+			System::IO::TextWriter ^pTextWriter;
+			if (!IO::File::Exists(path)) {
+
+				pTextWriter = gcnew System::IO::StreamWriter(path, true);
+				pTextWriter->Flush();
+
+			}
+			unsigned int saved_action_length = p_org_pattern->Length;
+			for (int j = 0; j < saved_action_length; j++) {
+				pTextWriter->Write(p_org_pattern[j][0] + "\t");
+			}
+			pTextWriter->Flush();
+			pTextWriter->Close();
+
+		}
+	}
+
+}
 
 public: void SetActionThreshold(unsigned int TargetAction, double threshold)
 {
@@ -4027,6 +4076,8 @@ System::Void pJoyButton1_MouseDoubleClick(System::Object^  sender, System::Windo
 	unsigned int action = Convert::ToUInt32(((Control ^)sender)->Tag);
 	BNOControl::ActionSettings ^p_action_settings = gcnew BNOControl::ActionSettings(action);
 	p_action_settings->UpdateEvent += gcnew BNOControl::ActionSettings::UpdateEventDelegate(this, &BNOControl::MainForm::SetActionThreshold);
+	p_action_settings->ExportActionPattern += gcnew BNOControl::ActionSettings::ExportActionPatternDelegate(this, &BNOControl::MainForm::ExportActionPattern);
+	p_action_settings->FileSaveThresholdMethod += gcnew BNOControl::ActionSettings::FileSaveThresholdDelegate(this, &BNOControl::MainForm::FileSaveThresholdMethod);
 
 	p_action_settings->Show();
 }

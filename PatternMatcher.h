@@ -2,18 +2,187 @@
 #include "ActionDefinition.h"
 #include "StandartDeviation.h"
 #include "ZNormalize.h"
+#include "RMS.h"
+#include "MeanAndCenterOffMass.h"
 public ref class PatternMatcher
 {
+private:
+	static boolean is_eligible_for_matching(array<array<float> ^> ^p_action_patterns, array<array<float> ^> ^sub_last_actions,
+		array<int> ^p_data_offsets, array<int> ^p_sub_last_actions_data_offsets)
+	{
+
+		boolean mean_check_pass = false;
+
+		array<double> ^means;
+		array<double> ^center_of_masses;
+		array<double> ^std_devs;
+		array<double> ^rms;
+		array<double> ^rms_saved;
+
+
+		array<double> ^saved_means;
+		array<double> ^saved_center_of_masses;
+		array<double> ^saved_std_devs;
+
+
+		means = gcnew array<double>(p_data_offsets->Length);
+		center_of_masses = gcnew array<double>(p_data_offsets->Length);
+		std_devs = gcnew array<double>(p_data_offsets->Length);
+		rms = gcnew array<double>(p_data_offsets->Length);
+		rms_saved = gcnew array<double>(p_data_offsets->Length);
+
+		saved_means = gcnew array<double>(p_data_offsets->Length);
+		saved_center_of_masses = gcnew array<double>(p_data_offsets->Length);
+		saved_std_devs = gcnew array<double>(p_data_offsets->Length);
+
+
+		RMS::Calculate(p_action_patterns, 0, 0, 0, p_action_patterns->Length, rms_saved);
+		RMS::Calculate(sub_last_actions,  0, 0, 0, sub_last_actions->Length, rms);
+
+
+		double rms_ratio = rms_saved[0] / rms[0];
+		if (rms_ratio < 1) {
+			rms_ratio = (1 / rms_ratio);
+		}
+
+		if (rms[0] > 3 || rms_ratio < 2.5) {
+
+			CalcMeansAndCenterOfMasses(sub_last_actions, p_sub_last_actions_data_offsets, 0, sub_last_actions->Length / 2, means, center_of_masses, std_devs);
+			CalcMeansAndCenterOfMasses(p_action_patterns, p_data_offsets, 0, p_action_patterns->Length / 2, saved_means, saved_center_of_masses, saved_std_devs);
+
+			RMS::Calculate(p_action_patterns, 0, 0, 0, p_action_patterns->Length / 2, rms_saved);
+			RMS::Calculate(sub_last_actions, 0, 0, 0, sub_last_actions->Length / 2, rms);
+
+			double min_mean_limit;
+			double max_mean_limit;
+
+			double min_rms_limit;
+			double max_rms_limit;
+
+			double min_std_limit;
+			double max_std_limit;
+
+			if (Math::Abs(saved_means[0]) < 6) {
+
+				min_mean_limit = saved_means[0] - 3;
+				max_mean_limit = saved_means[0] + 3;
+			}
+			else {
+				min_mean_limit = saved_means[0] - Math::Abs(saved_means[0] / 2.0f);
+				max_mean_limit = saved_means[0] + Math::Abs(saved_means[0] / 2.0f);
+			}
+
+			if (rms_saved[0] < 6) {
+
+				min_rms_limit = rms_saved[0] - 3;
+				max_rms_limit = rms_saved[0] + 3;
+			}
+			else {
+				min_rms_limit = rms_saved[0] - (rms_saved[0] / 2.0f);
+				max_rms_limit = rms_saved[0] + (rms_saved[0] / 2.0f);
+			}
+
+			if (saved_std_devs[0] < 6) {
+
+				min_std_limit = saved_std_devs[0] - 3;
+				max_std_limit = saved_std_devs[0] + 3;
+			}
+			else {
+				min_std_limit = saved_std_devs[0] - (saved_std_devs[0] / 2.0f);
+				max_std_limit = saved_std_devs[0] + (saved_std_devs[0] / 2.0f);
+			}
+
+
+	
+
+			if (means[0] > min_mean_limit && means[0] < max_mean_limit) {
+
+				if (rms[0] > min_rms_limit && rms[0] < max_rms_limit) {
+
+					if (std_devs[0] > min_std_limit && std_devs[0] < max_std_limit) {
+						mean_check_pass = true;
+					}
+				}
+			}
+			if (mean_check_pass == true) {
+				CalcMeansAndCenterOfMasses(sub_last_actions, p_sub_last_actions_data_offsets, Math::Ceiling((sub_last_actions->Length / 2)), sub_last_actions->Length, means, center_of_masses, std_devs);
+				CalcMeansAndCenterOfMasses(p_action_patterns, p_data_offsets, Math::Ceiling((p_action_patterns->Length / 2)), p_action_patterns->Length, saved_means, saved_center_of_masses, saved_std_devs);
+
+				RMS::Calculate(p_action_patterns, 0, 0, Math::Ceiling(p_action_patterns->Length / 2), p_action_patterns->Length, rms_saved);
+				RMS::Calculate(sub_last_actions, 0, 0, Math::Ceiling(sub_last_actions->Length / 2), sub_last_actions->Length, rms);
+
+				if (Math::Abs(saved_means[0]) < 6) {
+
+					min_mean_limit = saved_means[0] - 3;
+					max_mean_limit = saved_means[0] + 3;
+				}
+				else {
+					min_mean_limit = saved_means[0] - Math::Abs(saved_means[0] / 2.0f);
+					max_mean_limit = saved_means[0] + Math::Abs(saved_means[0] / 2.0f);
+				}
+
+				if (rms_saved[0] < 6) {
+
+					min_rms_limit = rms_saved[0] - 3;
+					max_rms_limit = rms_saved[0] + 3;
+				}
+				else {
+					min_rms_limit = rms_saved[0] - (rms_saved[0] / 2.0f);
+					max_rms_limit = rms_saved[0] + (rms_saved[0] / 2.0f);
+				}
+
+				if (saved_std_devs[0] < 6) {
+
+					min_std_limit = saved_std_devs[0] - 3;
+					max_std_limit = saved_std_devs[0] + 3;
+				}
+				else {
+					min_std_limit = saved_std_devs[0] - (saved_std_devs[0] / 2.0f);
+					max_std_limit = saved_std_devs[0] + (saved_std_devs[0] / 2.0f);
+				}
+
+				if (means[0] < min_mean_limit || means[0] > max_mean_limit) {
+					mean_check_pass = false;
+				}
+
+				if (rms[0] < min_rms_limit || rms[0] > max_rms_limit) {
+					mean_check_pass = false;
+				}
+
+				if (std_devs[0] < min_std_limit || std_devs[0] > max_std_limit) {
+					mean_check_pass = false;
+				}
+
+
+			}
+
+
+
+
+
+			return mean_check_pass;
+		}
+
+		return mean_check_pass;
+	}
 public:
 
 
 	static double Match(ActionDefinition ^p_action_definition, array<array<float> ^> ^p_last_actions)
 	{
 		double distance = 0;
+		bool is_eligible = false;
 		array<double> ^distances;
 		array<double> ^means;
 		array<double> ^center_of_masses;
 		array<double> ^std_devs;
+		array<double> ^rms;
+		array<double> ^rms_saved;
+		
+
+		array<double> ^saved_means;
+		array<double> ^saved_center_of_masses;
+		array<double> ^saved_std_devs;
 
 		array<array<float> ^> ^p_action_original_patterns = p_action_definition->GetOriginalPattern();
 		array<array<float> ^> ^p_action_patterns = p_action_definition->GetPattern();
@@ -30,10 +199,13 @@ public:
 		means = gcnew array<double>(p_data_offsets->Length);
 		center_of_masses = gcnew array<double>(p_data_offsets->Length);
 		std_devs = gcnew array<double>(p_data_offsets->Length);
+		rms = gcnew array<double>(p_data_offsets->Length);
+		rms_saved = gcnew array<double>(p_data_offsets->Length);
 		
-		//p_last_actions = SignalProcessing::Normalizer::Normalize(p_last_actions, p_data_offsets);
+		saved_means = gcnew array<double>(p_data_offsets->Length);
+		saved_center_of_masses = gcnew array<double>(p_data_offsets->Length);
+		saved_std_devs = gcnew array<double>(p_data_offsets->Length);
 
-		
 		for (int i = 0; i < p_action_original_patterns->Length; i++) {
 			sub_last_actions[i] = gcnew array<float>(p_data_offsets->Length);
 
@@ -47,14 +219,30 @@ public:
 			p_sub_last_actions_data_offsets[i] = i;
 		}
 
-	//	CalcMeansAndCenterOfMasses(sub_last_actions, p_sub_last_actions_data_offsets, means, center_of_masses, std_devs);
 
-	
-	//	ZNormalize::Normalize(sub_last_actions, sub_last_actions, p_sub_last_actions_data_offsets, p_sub_last_actions_data_offsets, means, std_devs);
 
-		CalcMeansAndCenterOfMasses(sub_last_actions, p_sub_last_actions_data_offsets, means, center_of_masses, std_devs);
+		is_eligible = is_eligible_for_matching(p_action_patterns, sub_last_actions, p_data_offsets, p_sub_last_actions_data_offsets);
 
-		if(std_devs[0] > 1){
+		
+
+		for (int i = 0; i < distances->Length; i++) {
+
+			distances[i] = 40;
+		}
+
+
+		if (is_eligible || (FileSave == true))
+		{
+				distances = p_action_definition->GetDistanceMethod()->Apply(p_action_patterns, sub_last_actions, p_sub_last_actions_data_offsets);
+
+				if (distances[0] < FileSaveThreshold) {
+					volatile int a = 1;
+					a++;
+				}
+
+		}
+#if 0
+		if(std_devs[0] > 1  && (Math::Abs(saved_std_devs[0] - std_devs[0]) < 2)){
 		//distance = p_action_definition->GetMSEDistancer()->Apply(p_action_patterns, p_last_actions, p_data_offsets);
 			distances = p_action_definition->GetDistanceMethod()->Apply(p_action_patterns, sub_last_actions, p_sub_last_actions_data_offsets);
 		}
@@ -69,7 +257,7 @@ public:
 			volatile int a = 1;
 			a++;
 		}
-
+#endif
 
 		for (int i = 0; i < p_sub_last_actions_data_offsets->Length; i++) {
 
@@ -98,23 +286,30 @@ public:
 
 	}
 private:
-	static void CalcMeansAndCenterOfMasses(array<array<float> ^> ^p_last_actions, array<int> ^p_data_offsets, array<double> ^means, array<double> ^center_of_masses, array<double> ^std_devs)
+
+	static void CalcMeansAndCenterOfMasses(array<array<float> ^> ^p_action, array<int> ^p_data_offsets, int start_index, int length, array<double> ^means, array<double> ^center_of_masses, array<double> ^std_devs)
 	{
 		double mean;
-		array<array<float> ^>^p_pattern = p_last_actions;
+		array<array<float> ^>^p_pattern = p_action;
 		unsigned int data_index = 0;
-		unsigned int pattern_length = p_last_actions->Length;
+		unsigned int pattern_length = p_action->Length;
 		double cumulative_mass;
 		double cumulative_weighted_mass;
 		int SensorDataCount = p_data_offsets->Length;
 
+		
+
 		for (int i = 0; i < SensorDataCount; i++) {
 
 			data_index = p_data_offsets[i];
-			MeanAndCenterOffMass::Calculate(p_last_actions, i, i, means, center_of_masses);
-			StandartDeviation::Calculate(p_last_actions, i, i, means, std_devs);
+			MeanAndCenterOffMass::Calculate(p_action, i, i, start_index, length, means, center_of_masses);
+			StandartDeviation::Calculate(p_action, i, i, start_index, length, means, std_devs);
 
 		}
+	}
+	static void CalcMeansAndCenterOfMasses(array<array<float> ^> ^p_last_actions, array<int> ^p_data_offsets, array<double> ^means, array<double> ^center_of_masses, array<double> ^std_devs)
+	{
+		CalcMeansAndCenterOfMasses(p_last_actions, p_data_offsets, 0, p_last_actions->Length, means, center_of_masses, std_devs);
 	}
 
 

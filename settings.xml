@@ -64,7 +64,7 @@
     <Source name="Res3" is_checked="false" />
     <Source name="Res4" is_checked="false" />
     <Source name="DistanceOfACtion0" is_checked="True" />
-    <Source name="DistanceOfACtion1" is_checked="True" />
+    <Source name="DistanceOfACtion1" is_checked="False" />
     <Source name="DistanceOfACtion2" is_checked="False" />
     <Source name="DistanceOfACtion3" is_checked="False" />
     <Source name="DistanceOfACtion4" is_checked="False" />
@@ -95,9 +95,10 @@
     <Source name="AccXFiltered" is_checked="false" />
     <Source name="AccYFiltered" is_checked="false" />
     <Source name="AccZFiltered" is_checked="False" />
-    <Source name="AccFilteredDownSTD" is_checked="False" />
+    <Source name="AccFilteredDownSTD" is_checked="True" />
+    <Source name="RMSAccFilteredDown" is_checked="False" />
   </SelectedDataComponents>
-  <Chart min="-1" max="4" />
+  <Chart min="-1" max="45" />
   <DirectionQuaternions>
     <Quaternion id="4" w="0,4587402" x="0,03259277" y="-0,0006713867" z="0,8880005" />
     <Quaternion id="3" w="0,1367798" x="-0,008422852" y="0,02166748" z="0,9903564" />
