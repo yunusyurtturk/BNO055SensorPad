@@ -1,11 +1,9 @@
 # BNO055SensorPad
 A CLI/C++ form application. BNO055 Data Viewer and more
 
-I didn't intent to design this app to be public, it is just a tool for my experiment/hobby projects. 
+I didn't intent to share this codebase publicly, it was just a tool for my experiment/hobby projects. 
 
-It is difficult but If you are really passionate and dedicated:
-
-You can find some time series analysis code implementations like:
+It is difficult but If you are really passionate and dedicated, you can find some time series analysis code implementations like:
 - dynamic time warping (DTW), 
 - symbolic aggregate approximation (SaX)
 - Complementary Filter
